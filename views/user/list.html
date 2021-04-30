@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="fragments/head" />
+<body>
+	<!-- Barra de Navegación superior -->
+	<nav th:replace="fragments/nav" />
+	<div class="container">
+		<h2 th:text="#{user.add.message}"></h2>
+		
+			
+		
+		
+		<form th:action='@{/user/remove}'/>
+		<table id="tableUsers">
+				<thead>
+					<tr>
+						<th></th>
+						<th th:text="#{user.nombre}"></th>
+						<th th:text="#{user.apellido}"></th>
+						<th th:text="#{user.email}"></th>
+						<th class="col-md-1"></th>
+						<th class="col-md-1"></th>
+						<th class="col-md-1"></th>
+						<th class="col-md-1"></th>
+						<th class="col-md-1"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="user : ${usersList}"  th:if="${user.role != 'ROLE_ADMIN'} ">
+						<td> <input type="checkbox" id="cbox" th:name="idChecked" th:value="${user.id}"> </td>
+						<td th:text="${user.nombre}">Nombre del alumno</td>
+						<td th:text="${user.apellido}">Apellidos del usuario</td>
+						<td th:text="${user.email}">ejmplo@ejemplo.com</td>
+						<td><a th:href="${'/user/details/' + user.id}" th:text="#{oferta.detalle}">detalles</a></td>
+					</tr>
+				</tbody>
+	
+				</table>
+				
+			<button type="submit" id="deleteButton" class="btn btn-default" th:text="#{boton.eliminar}"></button>
+		</form>
+		
+		</div>
+		<footer  th:replace="fragments/footer" />
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="fragments/head" />
+<body>
+	<!-- Barra de Navegación superior -->
+	<nav th:replace="fragments/nav" />
+	<div class="container">
+		<form class="navbar-form" action="/oferta/find">
+			<div class="form-group">
+				<input name="searchText" type="text" class="form-control" size="50"
+					th:placeholder="#{oferta.placeholder.buscar}">
+			</div>
+			<button type="submit" class="btn btn-default" th:text="#{oferta.search}">Buscar</button>
+		</form>
+		<div class="table-responsive">
+			<table class="table table-hover" id="tableOferta">
+				<thead>
+					<tr>
+						<th th:text="#{oferta.descripcion}"></th>
+						<th th:text="#{oferta.detalle}"></th>
+						<th th:text="#{oferta.precio}"></th>
+						<th class="col-md-1"></th>
+						<th class="col-md-1"></th>
+						<th class="col-md-1"></th>
+						<th class="col-md-1"></th>
+						<th class="col-md-1"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="oferta : ${ofertasList}">
+						<td th:text="${oferta.descripcion}">Nombre del alumno</td>
+						<td th:text="${oferta.detalle}">Apellidos del usuario</td>
+						<td th:text="${oferta.precio}">ejmplo@ejemplo.com</td>
+						<td th:if="${!oferta.isComprada() && #httpSession.getAttribute('saldo') >= oferta.precio}"><a
+							th:href="${'/oferta/buyList/' + oferta.id}"
+							th:text="#{oferta.comprar}"></a></td>
+						<td th:if="${oferta.isComprada()}" th:text="#{oferta.vendida}"></td>
+						<td th:if="${#httpSession.getAttribute('saldo') < oferta.precio && !oferta.isComprada()}" id="saldoInsuficiente" th:text="#{oferta.noSaldo}"></td>
+						
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<footer th:replace="fragments/pagination" />
+	</div>
+
+</body>
