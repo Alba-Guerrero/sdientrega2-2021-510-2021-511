@@ -2,23 +2,37 @@
 	{% block titulo %} Tienda – uoMusic {% endblock %}
 	{% block contenido_principal %}
 	<h2>Lista de usuarios </h2>
-	<div class="row">
-		<!-- Inicio del Bloque usuarios -->
-		{% for usuario in usuarios %}
-		<div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
-			<div style="width: 200px">
-				<a href="/usuario/id">
-					<div class="wrap"> Nombre: {{  usuario.name  }}</div>
-					<div class="small"> Apellido : {{ usuario.lastname }} </div>
-					<div class="small"> Email : {{ usuario.email }} </div>
-					<div class="small"> Saldo : {{ usuario.saldo }} </div>
-					<div class="small"> Role : {{ usuario.role }} </div>
+	<form class="form-horizontal justify-content-center" method="post" action="/user/delete">
 
-				</a>
-			</div>
+	<div class="table-responsive">
+		<table class="table table-hover">
+			<thead>
+			<tr>
+				<th> </th>
+				<th>Nombre</th>
+				<th>Apellido</th>
+				<th>Email</th>
+				<th class="col-md-1"></th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for usuario in usuarios %}
+			<tr>
+				<td><input type="checkbox" id="cbox" name="emails" value={{ usuario.email }} ></td>
+				<td>{{  usuario.name  }}</td>
+				<td>{{ usuario.lastname }}</td>
+				<td>{{ usuario.email }}</td>
+
+			</tr>
+			{% endfor %}
+			</tbody>
+
+		</table>
+		<div >
+			<button id="boton" type="submit" class="btn btn-primary">Eliminar</button>
 		</div>
-		{% endfor %}
-		<!-- Fin del Bloque usuarios -->
 	</div>
+	</form>
+
 
 	{% endblock %}

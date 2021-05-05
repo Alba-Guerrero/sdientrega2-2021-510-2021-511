@@ -283,7 +283,7 @@ module.exports = function(app,swig,gestorBD) {
     })
 
 
-    app.get("/publicaciones", function (req, res) {
+    app.get("/compradas", function (req, res) {
         let criterio = {autor: req.session.usuario};
         gestorBD.obtenerCanciones(criterio, function (canciones) {
             if (canciones == null) {
