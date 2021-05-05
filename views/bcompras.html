@@ -1,0 +1,39 @@
+	{% extends "base.html" %}
+	{% block titulo %} Tienda – uoMusic {% endblock %}
+	{% block contenido_principal %}
+	<h2>Mis compras </h2>
+
+
+	<div class="table-responsive">
+		<table class="table table-hover">
+			<thead>
+			<tr>
+				<th> </th>
+				<th>Titulo</th>
+				<th>Descripcion</th>
+				<th>Detalle</th>
+				<th>Fecha</th>
+				<th>Precio</th>
+				<th class="col-md-1"></th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for compra in compras %}
+			<tr>
+				<td>{{  compra.title  }}</td>
+				<td>{{ compra.descripcion }}</td>
+				<td>{{ compra.detalle }}</td>
+				<td>{{ compra.fecha }}</td>
+				<td>{{ compra.precio }}</td>
+
+			</tr>
+			{% endfor %}
+			</tbody>
+
+		</table>
+
+	</div>
+
+
+
+	{% endblock %}
