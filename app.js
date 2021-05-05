@@ -1,7 +1,7 @@
 let express=require('express');
 let crypto = require('crypto');
 let app= express();
-
+let expressSession = require('express-session');
 let jwt = require('jsonwebtoken');
 app.set('jwt',jwt);
 
@@ -23,22 +23,11 @@ app.use(express.static('public'));
 let gestorBD = require("./modules/gestorBD.js");
 gestorBD.init(app,mongo);
 
-// routerUsuarioSession
-var routerUsuarioSession = express.Router();
-routerUsuarioSession.use(function(req, res, next) {
-    console.log("routerUsuarioSession");
-    if ( req.session.usuario ) {
-        // dejamos correr la petición
-        next();
-    } else {
-        console.log("va a : "+req.session.destino)
-        res.redirect("/identificarse");
-    }
-});
-//Aplicar routerUsuarioSession
-app.use(express.static('public'));
-//app.use("/canciones/agregar",routerUsuarioSession);
-//app.use("/publicaciones",routerUsuarioSession);
+app.use(expressSession({
+    secret: 'abcdefg',
+    resave: true,
+    saveUninitialized: true
+}));
 
 //Variables
 app.set('port',8081);

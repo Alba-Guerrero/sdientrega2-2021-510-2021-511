@@ -191,8 +191,7 @@ module.exports = function(app,swig,gestorBD) {
             title: req.body.title,
             detalle: req.body.detalle,
             desripcion: req.body.descripcion,
-            precio: req.body.precio,
-            fecha:
+            precio: req.body.precio
 
         }
 
@@ -202,34 +201,32 @@ module.exports = function(app,swig,gestorBD) {
                 res.redirect("/publicaciones");
             } else {
                 if (req.files.portada != null) {
-                                let audio = req.files.audio;
-                                audio.mv('public/audios/' + id + '.mp3', function (err) {
-                                    if (err) {
-                                        let respuesta = swig.renderFile('views/error.html',
-                                            {
+                    let audio = req.files.audio;
+                    audio.mv('public/audios/' + id + '.mp3', function (err) {
+                        if (err) {
+                            let respuesta = swig.renderFile('views/error.html',
+                                {
 
-                                                mensaje: "no se puede agregar la oferta"
-                                            });
-                                        res.send(respuesta);
-
-                                    } else {
-
-                                        res.send("Agregada id: " + id);
-                                    }
-
+                                    mensaje: "no se puede agregar la oferta"
                                 });
-                            }
+                            res.send(respuesta);
+
+                        } else {
+
+                            res.send("Agregada id: " + id);
                         }
+
                     });
-
-
-
+                }
             }
         });
 
     });
 
-    app.get("/home", function (req, res) {
+
+
+
+    app.get("/ofertas/list", function (req, res) {
         let criterio = {};
         if (req.query.busqueda != null) {
             criterio = {"nombre": {$regex: ".*" + req.query.busqueda + ".*"}};
@@ -257,9 +254,9 @@ module.exports = function(app,swig,gestorBD) {
                         paginas.push(i);
                     }
                 }
-                let respuesta = swig.renderFile('views/home.html',
+                let respuesta = swig.renderFile('views/btienda.html',
                     {
-                        canciones: canciones,
+                        ofertas: ofertas,
                         paginas: paginas,
                         actual: pg
                     });

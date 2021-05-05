@@ -26,16 +26,18 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                {% if usuario!=null && usuario.email != "admin@email.com" %}
+                {% if usuario !=null && usuario.email != "admin@email.com" %}
                 <li id="home" class="active"><a href="/home">Home</a></li>
                 {% endif %}
                 {% if usuario!=null && usuario.email == "admin@email.com" %}
 
-                <li id="listaUsuarios"><a href="/user/list">Listado de usurios</a></li>
+                <li id="listaUsuarios"><a href="/user/list">Listado de usuarios</a></li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                {% if usuario!=null %}
+                {% if usuario !=null %}
+                <li>{{usuario.email}}</li>
+                <li>{{usuario.saldo}}</li>
                 <li><a href="/desconectarse"><span class="glyphicon glyphicon-user"></span> Desconectarse</a></li>
 
                 {% else %}

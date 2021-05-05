@@ -55,7 +55,7 @@ module.exports = function(app,swig,gestorBD) {
             } else {
                 console.log(usuarios[0].email);
                 req.session.usuario = usuarios[0].email;
-                res.redirect("/publicaciones");
+                res.redirect("/ofertas/list");
             }
         });
     });
