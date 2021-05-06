@@ -74,25 +74,21 @@ module.exports = function (app, swig, gestorBD) {
             res.redirect("/ofertas/list");
             return;
         }
-        var oferta = {
+        var ofer = {
             title: req.body.title,
             detalle: req.body.detalle,
             desripcion: req.body.descripcion,
             fecha: new Date(),
-            precio: req.body.precio
+            precio: req.body.precio,
+            usuario:req.session.usuario,
+            comprada:false
 
         }
 
         // Conectarse
-        gestorBD.insertarOferta(oferta, function (id) {
-            if (id == null) {
-                res.redirect("/ofertas/list");
-            } else {
-
-                if ( req.files.title != null && req.files.detalle != null && req.files.desripcion != null &&
-                    req.files.fecha != null && req.files.precio != null) {
-
-                    res.send("Agregada id: " + id);
+        gestorBD.insertarOferta(ofer, function (id) {
+            if (id != null) {
+                res.redirect("/ofertas/list?mensaje=Se ha insertado la oferta con éxito");
 
                 } else {
                     let respuesta = swig.renderFile('views/error.html',
@@ -104,11 +100,48 @@ module.exports = function (app, swig, gestorBD) {
 
                 }
 
-            }
         });
     });
 
+    app.get("/misofertas/list", function (req, res) {
+        let criterio = {};
+        if (req.query.busqueda != null) {
+            criterio = {"nombre": {$regex: ".*" + req.query.busqueda + ".*"}};
+        }
+        let pg = parseInt(req.query.pg); // Es String !!!
+        if (req.query.pg == null) { // Puede no venir el param
+            pg = 1;
+        }
+        gestorBD.obtenerOfertasPg(criterio, pg, function (ofertas, total) {
+            if (ofertas == null) {
+                let respuesta = swig.renderFile('views/error.html',
+                    {
 
+                        mensaje: "Error al listar "
+                    });
+                res.send(respuesta);
+            } else {
+                let ultimaPg = total / 4;
+                if (total % 4 > 0) { // Sobran decimales
+                    ultimaPg = ultimaPg + 1;
+                }
+                let paginas = []; // paginas mostrar
+                for (let i = pg - 2; i <= pg + 2; i++) {
+                    if (i > 0 && i <= ultimaPg) {
+                        paginas.push(i);
+                    }
+                }
+                let respuesta = swig.renderFile('views/bofertaspropias.html',
+                    {
+                        ofertas: ofertas,
+                        paginas: paginas,
+                        actual: pg
+                    });
+                res.send(respuesta);
+            }
+        });
+
+    });
 
 app.get("/ofertas/list", function (req, res) {
     let criterio = {};
@@ -161,7 +194,7 @@ app.get('/oferta/eliminar/:id', function (req, res) {
         if (ofertas == null) {
             res.send("No se ha podido eliminar esta oferta");
         } else {
-            res.redirect("/ofertas/list");
+            res.redirect("/misofertas/list");
         }
     });
 })
