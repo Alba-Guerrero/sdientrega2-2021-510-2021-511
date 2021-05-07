@@ -12,7 +12,7 @@ module.exports = {
             } else {
                 let collection = db.collection('ofertas');
                 collection.count(function(err, count){
-                    collection.find(criterio).skip( (pg-1)*4 ).limit( 4 )
+                    collection.find(criterio).skip( (pg-1)*5 ).limit( 5 )
                         .toArray(function(err, ofertas) {
                             if (err) {
                                 funcionCallback(null);
@@ -103,6 +103,41 @@ module.exports = {
             } else {
                 let collection = db.collection('usuarios');
                 collection.remove(criterio, function(err, result) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(result);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+
+    modificarOferta : function(criterio, cancion, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('ofertas');
+                collection.update(criterio, {$set: oferta}, function(err, result) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(result);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },  modificarUsuario : function(criterio, cancion, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('usuarios');
+                collection.update(criterio, {$set: usuario}, function(err, result) {
                     if (err) {
                         funcionCallback(null);
                     } else {
