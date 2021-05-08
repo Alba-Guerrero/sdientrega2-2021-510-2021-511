@@ -42,9 +42,26 @@ require("./routes/rofertas.js")(app,swig,gestorBD); // (app, param1, param2, etc
 
 
 app.get('/', function (req, res) {
-    res.redirect('/home');
+    res.redirect('/tienda');
 })
-
+/**
+ * Router para comprobar sesion
+ * @type {Router}
+ */
+var routerUsuarioSession = express.Router();
+routerUsuarioSession.use(function(req, res, next) {
+    console.log("routerUsuarioSession");
+    if ( req.session.usuario ) {
+        // dejamos correr la petición
+        next();
+    } else {
+        console.log("va a : "+req.session.destino)
+        res.redirect("/identificarse");
+    }
+});
+//Aplicar routerUsuarioSession
+app.use(express.static('public'));
+app.use("/oferta/add",routerUsuarioSession);
 
 
 
