@@ -1,0 +1,39 @@
+	{% extends "base.html" %}
+	{% block titulo %} Oferta {% endblock %}
+	{% block contenido_principal %}
+	<h2>Lista de ofertas compradas</h2>
+
+	<div class="table-responsive">
+		<table class="table table-hover">
+			<thead>
+			<tr>
+
+				<th>Título</th>
+				<th>Detalle</th>
+				<th>Precio</th>
+				<th>Email del vendedor</th>
+				<th class="col-md-1"></th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for oferta in ofertas %}
+			<tr>
+				<td>{{  oferta.title  }}</td>
+				<td>{{ oferta.detalle }}</td>
+				<td>{{ oferta.precio }}</td>
+				<td>{{ oferta.vendedor }}</td>
+
+
+			</tr>
+
+			{% endfor %}
+
+			</tbody>
+
+		</table>
+
+	</div>
+
+
+
+	{% endblock %}

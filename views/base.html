@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>{% block titulo %} My Wallapop {% endblock %}</title>
@@ -29,26 +29,27 @@
 
                 <li id="lista" class="active"><a href="/ofertas/list">Listado de ofertas</a></li>
                 {% endif %}
-                {% if usuario!=null && usuario.email == "admin@email.com" %}
+                {% if usuario!=null && usuario == "admin@email.com" %}
 
                 <li id="listaUsuarios"><a href="/user/list">Listado de usuarios</a></li>
                 {% endif %}
-                {% if usuario!=null && usuario.email != "admin@email.com" %}
+                {% if usuario!=null && usuario != "admin@email.com" %}
                 <li id="listaoferta" class="active"><a href="/ofertas/list">Listado de ofertas</a></li>
                 <li id="coferta" class="active"><a href="/oferta/add">Crear Oferta</a></li>
                 <li id="Boferta" class="active"><a href="/oferta/add">Buscar Oferta</a></li>
-                <li id="Coferta" class="active"><a href="/compradas">Lista de ofertas compradas</a></li>
+                <li id="Comferta" class="active"><a href="/compradas">Lista de ofertas compradas</a></li>
                 {% endif %}
 
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                {% if usuario!=null %}
+                {% if usuario !=null %}
                 <li>{{usuario.email}}</li>
                 <li>{{usuario.saldo}}</li>
                 <li><a href="/desconectarse"><span class="glyphicon glyphicon-user"></span> Desconectarse</a></li>
 
                 {% else %}
+
                 <li><a href="/registrarse"><span class="glyphicon glyphicon-user"></span> Registrate</a></li>
                 <li><a href="/identificarse"><span class="glyphicon glyphicon-log-in"></span> Identifícate</a></li>
                 {% endif %}

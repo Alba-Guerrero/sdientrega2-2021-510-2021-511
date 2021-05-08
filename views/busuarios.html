@@ -18,7 +18,7 @@
 			<tbody>
 			{% for usuario in usuarios %}
 			<tr>
-				<td><input type="checkbox" id="cbox" name="emails" value={{ usuario.email }} ></td>
+				<td><input type="checkbox" name="emails" value={{ usuario.email }} ></td>
 				<td>{{  usuario.name  }}</td>
 				<td>{{ usuario.lastname }}</td>
 				<td>{{ usuario.email }}</td>
