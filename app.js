@@ -38,15 +38,42 @@ app.set('crypto',crypto);
 require("./routes/rusuarios.js")(app,swig,gestorBD); // (app, param1, param2, etc.)
 require("./routes/rofertas.js")(app,swig,gestorBD); // (app, param1, param2, etc.)
 
-
-
-
 app.get('/', function (req, res) {
     res.redirect('/home');
 })
 
+require("./routes/rapi.js")(app, gestorBD);
 
+//Api
+let routerUsuarioToken = express.Router();
+routerUsuarioToken.use(function(req, res, next) {
+    let token = req.headers['token'] || req.body.token || req.query.token;
+    if (token != null) {
+        jwt.verify(token, 'secreto', function(err, infoToken) {
+            if (err || (Date.now()/1000 - infoToken.tiempo) > 240 ){
+                res.status(403); // Forbidden
+                res.json({
+                    acceso : false,
+                    error: 'Token invalido o caducado'
+                });
+                return;
 
+            } else {
+                res.usuario = infoToken.usuario;
+                next();
+            }
+        });
+
+    } else {
+        res.status(403); // Forbidden
+        res.json({
+            acceso : false,
+            mensaje: 'No existe token'
+        });
+    }
+});
+// Aplicar routerUsuarioToken
+app.use('/api/*', routerUsuarioToken);
 
 app.listen(app.get('port'),function (){
     console.log('Servidor activo');

@@ -32,7 +32,7 @@ module.exports = function(app, gestorBD) {
         });
     });
 
-    app.post("/api/ofertas", function(req, res) {
+    app.post("/api/oferta", function(req, res) {
         let criterio = {"vendedor": {$ne: req.body.email }};
         gestorBD.obtenerOfertas( criterio , function(ofertas) {
             if (ofertas == null) {
@@ -45,5 +45,43 @@ module.exports = function(app, gestorBD) {
                 res.send( JSON.stringify(ofertas) );
             }
         });
+    });
+
+    /**
+     * Metodo post para añadir un mensaje
+     */
+    app.post("/api/mensaje", function (req, res) {
+        var mensaje = {
+            emisor: req.body.emisor,
+            receptor: req.body.receptor,
+            oferta: req.body.oferta,
+            mensaje: req.body.mensaje,
+            fecha: new Date(),
+            leido:false
+        }
+
+        gestorBD.insertarMensaje(mensaje, function (id) {
+            if (id == null) {
+                res.status(500);
+                res.json({
+                    error: "Se ha producido un error"
+                })
+            } else {
+                res.status(200);
+                res.json({
+                    mensaje: "Mensaje insertado correctamente",
+                    _id: id
+                })
+            }
+        });
+    });
+
+    /**
+     * Metodo comprobar si la api esta funcionando
+     */
+    app.post("/api/debug", function (req, res) {
+        res.json({
+            mensaje: "Operativa"
+        })
     });
 }
