@@ -279,6 +279,7 @@ module.exports = function (app, swig, gestorBD) {
                 }
                 let respuesta = swig.renderFile('views/btienda.html',
                     {
+                        usuario:req.session.usuario,
                         ofertas: ofertas,
                         paginas: paginas,
                         actual: pg
