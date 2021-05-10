@@ -94,7 +94,7 @@ module.exports = function(app,swig,gestorBD) {
         });
     app.post("/user/delete", function (req, res) {
         var emails= req.body.emails;
-        var criterio= {email:  emails};
+        var criterio= {email:  {$in: emails}};
 
         gestorBD.eliminarUsuarios(criterio, function (usuarios) {
             if (usuarios == null) {
