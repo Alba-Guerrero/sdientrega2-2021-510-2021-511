@@ -50,79 +50,75 @@ module.exports = function(app, gestorBD) {
     /**
      * Metodo post para añadir un mensaje
      */
-    app.post("/api/mensaje", function (req, res) {
-        var emisor = {
-            _id : req.body.emisor
-        }
-
-        gestorBD.obtenerUsuarios(emisor, function (usuarios) {
-            if (usuarios.length == 0) {
-                res.status(500);
-                res.json({
-                    error: "El emisor no existe"
-                })
-
-            } else {
-                var receptor = {
-                    _id : req.body.receptor
-                }
-
-                gestorBD.obtenerUsuarios(receptor, function (usuarios) {
-                    if (usuarios.length == 0) {
-                        res.status(500);
-                        res.json({
-                            error: "El receptor no existe"
-                        })
-
-                    } else {
-                        var oferta = {
-                            _id : req.body.oferta
-                        }
-                        gestorBD.obtenerOfertas(oferta, function (usuarios) {
-                            if (usuarios.length == 0) {
-                                res.status(500);
-                                res.json({
-                                    error: "La oferta no existe"
-                                })
-
-                            } else {
-                                var mensaje = {
-                                    emisor: req.body.emisor,
-                                    receptor: req.body.receptor,
-                                    oferta: req.body.oferta,
-                                    mensaje: req.body.mensaje,
-                                    fecha: new Date(),
-                                    leido:false
-                                }
-
-                                gestorBD.insertarMensaje(mensaje, function (id) {
-                                    if (id == null) {
-                                        res.status(500);
-                                        res.json({
-                                            error: "Se ha producido un error"
-                                        })
-                                    } else {
-                                        res.status(200);
-                                        res.json({
-                                            mensaje: "Mensaje insertado correctamente",
-                                            _id: id
-                                        })
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
+    app.post("/api/oferta/mensaje/:id", function (req, res) {
+        if(req.body.emisor != req.body.receptor) {
+            var emisor = {
+                email : req.body.emisor
             }
-        });
+
+            gestorBD.obtenerUsuarios(emisor, function (usuarios) {
+                if (usuarios.length == 0) {
+                    res.status(500);
+                    res.json({
+                        error: "El emisor no existe"
+                    })
+
+                } else {
+                    var receptor = {
+                        email : req.body.receptor
+                    }
+
+                    gestorBD.obtenerUsuarios(receptor, function (usuarios) {
+                        if (usuarios.length == 0) {
+                            res.status(500);
+                            res.json({
+                                error: "El receptor no existe"
+                            })
+
+                        } else {
+                            let oferta = {
+                                "_id": gestorBD.mongo.ObjectID(req.params.id),
+                                "vendedor": receptor.email
+                            };
+
+                            gestorBD.obtenerOfertas(oferta, function (usuarios) {
+                                if (usuarios.length == 0) {
+                                    res.status(500);
+                                    res.json({
+                                        error: "La oferta no existe"
+                                    })
+
+                                } else {
+                                    var mensaje = {
+                                        emisor: req.body.emisor,
+                                        receptor: req.body.receptor,
+                                        oferta: oferta,
+                                        mensaje: req.body.mensaje,
+                                        fecha: new Date(),
+                                        leido:false
+                                    }
+
+                                    gestorBD.insertarMensaje(mensaje, function (id) {
+                                        if (id == null) {
+                                            res.status(500);
+                                            res.json({
+                                                error: "Se ha producido un error"
+                                            })
+                                        } else {
+                                            res.status(200);
+                                            res.json({
+                                                mensaje: "Mensaje insertado correctamente",
+                                                _id: id
+                                            })
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
     });
 
-    /**
-     * Metodo comprobar si la api esta funcionando
-     */
-    app.post("/api/debug", function (req, res) {
-        res.json({
-            mensaje: "Operativa"
-        })
-    });
 }

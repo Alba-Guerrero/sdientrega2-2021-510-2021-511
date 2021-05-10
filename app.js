@@ -42,8 +42,6 @@ app.get('/', function (req, res) {
     res.redirect('/home');
 })
 
-require("./routes/rapi.js")(app, gestorBD);
-
 //Api
 let routerUsuarioToken = express.Router();
 routerUsuarioToken.use(function(req, res, next) {
@@ -73,7 +71,8 @@ routerUsuarioToken.use(function(req, res, next) {
     }
 });
 // Aplicar routerUsuarioToken
-app.use('/api/*', routerUsuarioToken);
+app.use('/api/oferta*', routerUsuarioToken);
+require("./routes/rapi.js")(app, gestorBD);
 
 app.listen(app.get('port'),function (){
     console.log('Servidor activo');
