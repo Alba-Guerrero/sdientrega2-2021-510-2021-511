@@ -48,7 +48,7 @@ routerUsuarioToken.use(function(req, res, next) {
     let token = req.headers['token'] || req.body.token || req.query.token;
     if (token != null) {
         jwt.verify(token, 'secreto', function(err, infoToken) {
-            if (err || (Date.now()/1000 - infoToken.tiempo) > 240 ){
+            if (err || (Date.now()/1000 - infoToken.tiempo) > 600){
                 res.status(403); // Forbidden
                 res.json({
                     acceso : false,
