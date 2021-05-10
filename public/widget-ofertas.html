@@ -11,18 +11,18 @@
 
 
     <table class="table table-hover">
-    <thead>
-    <tr>
-        <th>Titulo</th>
-        <th>Detalle</th>
-        <th>Precio</th>
-        <th>Vendedor</th>
-        <th class="col-md-1"></th>
-    </tr>
-    </thead>
-    <tbody id="tablaCuerpo">
+        <thead>
+        <tr>
+            <th>Titulo</th>
+            <th>Detalle</th>
+            <th>Precio</th>
+            <th>Vendedor</th>
+            <th class="col-md-1"></th>
+        </tr>
+        </thead>
+        <tbody id="tablaCuerpo">
 
-    </tbody>
+        </tbody>
     </table>
 </div>
 </body>
@@ -56,13 +56,18 @@
                 "<td>"+ofertasShow[i].detalle+"</td>" +
                 "<td>"+ofertasShow[i].precio+"</td>" +
                 "<td>"+ofertasShow[i].vendedor+"</td>" +
+                "<td>"+
+                "<a onclick=enviarMensaje('"+ofertasShow[i]._id+"')>Enviar mensaje</a><br>"+
                 "</tr>" );
 
         }
     }
     cargarOfertas();
 
-
+    function enviarMensaje(_id) {
+        idOfertaSeleccionada = _id;
+        $( "#contenedor-principal" ).load( "widget-chat.html");
+    }
 
 </script>
 
