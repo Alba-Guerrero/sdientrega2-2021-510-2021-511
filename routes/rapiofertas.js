@@ -34,7 +34,8 @@ module.exports = function (app, gestorBD) {
      * Metodo get para listar ofertas no propias
      */
     app.get("/api/oferta", function (req, res) {
-        let criterio = {"vendedor": {$ne: req.body.email}};
+        let criterio = { vendedor: {$ne: res.usuario}};
+
 
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
