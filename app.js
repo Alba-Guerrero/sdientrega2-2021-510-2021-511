@@ -42,14 +42,13 @@ app.set('port',8081);
 app.set('db','mongodb://admin:admin@mywallapop-shard-00-00.7adn3.mongodb.net:27017,mywallapop-shard-00-01.7adn3.mongodb.net:27017,mywallapop-shard-00-02.7adn3.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-3o8e26-shard-0&authSource=admin&retryWrites=true&w=majority');
 app.set('clave','abcdefg');
 app.set('crypto',crypto);
-//Rutas/controladores por lógica
 
-
+//Redireccion
 app.get('/', function (req, res) {
     res.redirect('/identificarse');
 })
 
-//Api
+//RouterUsuarioToken
 let routerUsuarioToken = express.Router();
 routerUsuarioToken.use(function(req, res, next) {
     let token = req.headers['token'] || req.body.token || req.query.token;
@@ -78,7 +77,7 @@ routerUsuarioToken.use(function(req, res, next) {
     }
 });
 
-// routerUsuarioSession
+//RouterUsuario
 var routerUsuarioSession = express.Router();
 routerUsuarioSession.use(function(req, res, next) {
     if ( req.session.usuario ) {
@@ -88,7 +87,24 @@ routerUsuarioSession.use(function(req, res, next) {
     }
 });
 
-//Routers
+//RouterAdmin
+var routerAdminSession = express.Router();
+routerAdminSession.use(function(req, res, next) {
+    if ( req.session.usuario === "admin@email.com" )
+        next();
+    else {
+        if( req.session.usuario )
+            res.redirect("/ofertas/list");
+        else
+            res.redirect("/identificarse");
+    }
+});
+
+//RoutersAdmin
+app.use("/users/list",routerAdminSession);
+app.use("/users/delete",routerAdminSession);
+
+//RoutersUsuario
 app.use("/tienda",routerUsuarioSession);
 app.use("/compras",routerUsuarioSession);
 app.use("/oferta/add",routerUsuarioSession);
@@ -96,6 +112,8 @@ app.use("/oferta",routerUsuarioSession);
 app.use("/ofertas/list",routerUsuarioSession);
 app.use("/ofertas/compradas",routerUsuarioSession);
 app.use("/misofertas/list",routerUsuarioSession);
+
+//RouterToken
 app.use('/api/oferta', routerUsuarioToken);
 
 //Requires

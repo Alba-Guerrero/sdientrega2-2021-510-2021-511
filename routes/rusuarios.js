@@ -1,12 +1,10 @@
 module.exports = function (app, swig, gestorBD) {
-    app.get("/usuarios", function (req, res) {
-        res.send("ver usuarios");
-    });
 
     app.get("/registrarse", function (req, res) {
         let respuesta = swig.renderFile('views/bregistro.html', {});
         res.send(respuesta);
     });
+
     app.post('/registrarse', function (req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
