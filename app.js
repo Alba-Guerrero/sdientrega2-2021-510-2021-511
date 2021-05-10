@@ -4,8 +4,6 @@ let app= express();
 let expressSession = require('express-session');
 let jwt = require('jsonwebtoken');
 app.set('jwt',jwt);
-let rest = require('request');
-app.set('rest',rest);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -84,7 +82,7 @@ routerUsuarioToken.use(function(req, res, next) {
 });
 // Aplicar routerUsuarioToken
 app.use('/api/oferta', routerUsuarioToken);
-require("./routes/rapiofertas.js")(app, gestorBD);
+require("./routes/rapi.js")(app, gestorBD);
 require("./routes/rusuarios.js")(app,swig,gestorBD); // (app, param1, param2, etc.)
 require("./routes/rofertas.js")(app,swig,gestorBD); // (app, param1, param2, etc.)
 app.listen(app.get('port'),function (){
