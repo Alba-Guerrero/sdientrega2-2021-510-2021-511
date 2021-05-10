@@ -1,15 +1,13 @@
-module.exports = function(app,swig,gestorBD) {
-    app.get("/usuarios", function(req, res) {
+module.exports = function (app, swig, gestorBD) {
+    app.get("/usuarios", function (req, res) {
         res.send("ver usuarios");
     });
 
-
-
-    app.get("/registrarse", function(req, res) {
+    app.get("/registrarse", function (req, res) {
         let respuesta = swig.renderFile('views/bregistro.html', {});
         res.send(respuesta);
     });
-    app.post('/registrarse', function(req, res) {
+    app.post('/registrarse', function (req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
         let usuario = {
@@ -46,24 +44,23 @@ module.exports = function(app,swig,gestorBD) {
         });
     });
 
-    app.get("/identificarse", function(req, res) {
+    app.get("/identificarse", function (req, res) {
         let respuesta = swig.renderFile('views/bidentificacion.html', {});
         res.send(respuesta);
     });
 
-
-    app.post("/identificarse", function(req, res) {
+    app.post("/identificarse", function (req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
         let criterio = {
-            email : req.body.email,
-            password : seguro
+            email: req.body.email,
+            password: seguro
         }
-        gestorBD.obtenerUsuarios(criterio, function(usuarios) {
+        gestorBD.obtenerUsuarios(criterio, function (usuarios) {
             if (usuarios == null || usuarios.length == 0) {
                 req.session.usuario = null;
                 res.redirect("/identificarse" +
-                    "?mensaje=Email o password incorrecto"+
+                    "?mensaje=Email o password incorrecto" +
                     "&tipoMensaje=alert-danger ");
             } else {
                 if (usuarios[0].email === "admin@email.com") {
@@ -76,25 +73,28 @@ module.exports = function(app,swig,gestorBD) {
             }
         });
     });
+
     app.get('/desconectarse', function (req, res) {
         req.session.usuario = null;
         res.send("Usuario desconectado");
     })
+
     app.get("/users/list", function (req, res) {
         var criterio = {email: {$ne: "admin@email.com"}};
         gestorBD.obtenerUsuarios(criterio, function (usuarios) {
-                var respuesta = swig.renderFile('views/busuarios.html', {
+            var respuesta = swig.renderFile('views/busuarios.html', {
 
-                    usuarios: usuarios
+                usuarios: usuarios
 
-                });
-
-                res.send(respuesta);
             });
+
+            res.send(respuesta);
         });
+    });
+
     app.post("/user/delete", function (req, res) {
-        var emails= req.body.emails;
-        var criterio= {email:  {$in: emails}};
+        var emails = req.body.emails;
+        var criterio = {email: {$in: emails}};
 
         gestorBD.eliminarUsuarios(criterio, function (usuarios) {
             if (usuarios == null) {
@@ -106,10 +106,8 @@ module.exports = function(app,swig,gestorBD) {
                     } else {
                         res.redirect("/users/list");
                     }
-
-
                 });
             }
-    });
+        });
     });
 };

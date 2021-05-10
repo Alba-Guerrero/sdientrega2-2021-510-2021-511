@@ -46,11 +46,8 @@ app.set('crypto',crypto);
 
 
 app.get('/', function (req, res) {
-    res.redirect('/home');
+    res.redirect('/identificarse');
 })
-
-
-
 
 //Api
 let routerUsuarioToken = express.Router();
@@ -80,11 +77,32 @@ routerUsuarioToken.use(function(req, res, next) {
         });
     }
 });
-// Aplicar routerUsuarioToken
+
+// routerUsuarioSession
+var routerUsuarioSession = express.Router();
+routerUsuarioSession.use(function(req, res, next) {
+    if ( req.session.usuario ) {
+        next();
+    } else {
+        res.redirect("/identificarse");
+    }
+});
+
+//Routers
+app.use("/tienda",routerUsuarioSession);
+app.use("/compras",routerUsuarioSession);
+app.use("/oferta/add",routerUsuarioSession);
+app.use("/oferta",routerUsuarioSession);
+app.use("/ofertas/list",routerUsuarioSession);
+app.use("/ofertas/compradas",routerUsuarioSession);
+app.use("/misofertas/list",routerUsuarioSession);
 app.use('/api/oferta', routerUsuarioToken);
+
+//Requires
 require("./routes/rapi.js")(app, gestorBD);
-require("./routes/rusuarios.js")(app,swig,gestorBD); // (app, param1, param2, etc.)
-require("./routes/rofertas.js")(app,swig,gestorBD); // (app, param1, param2, etc.)
+require("./routes/rusuarios.js")(app,swig,gestorBD);
+require("./routes/rofertas.js")(app,swig,gestorBD);
+
 app.listen(app.get('port'),function (){
     console.log('Servidor activo');
 });
