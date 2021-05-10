@@ -8,8 +8,21 @@ module.exports = function (app, swig, gestorBD) {
     app.post('/registrarse', function (req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
-        let usuario = {
 
+        if (!req.body.email.includes("@")) {
+            res.redirect("/registrarse?mensaje=El email no tiene un formato válido");
+            return;
+        }
+        if (req.body.name.length < 2) {
+            res.redirect("/registrarse?mensaje=El nombre contiene menos de 2 caracteres");
+            return;
+        }
+        if (req.body.lastname.length < 2) {
+            res.redirect("/registrarse?mensaje=El apellido contiene menos de 2 caracteres");
+            return;
+        }
+
+        let usuario = {
             email: req.body.email,
             name: req.body.name,
             lastname: req.body.lastname,
@@ -29,7 +42,7 @@ module.exports = function (app, swig, gestorBD) {
                     "?mensaje=Este usuario ya existe en el sistema" +
                     "&tipoMensaje=alert-danger ");
             } else {
-                if (req.body.password === req.body.repeatpassword)
+                if (req.body.password === req.body.repeatpassword){
 
                     gestorBD.insertarUsuario(usuario, function (id) {
                         if (id == null) {
@@ -38,7 +51,11 @@ module.exports = function (app, swig, gestorBD) {
                             res.redirect("/identificarse?mensaje=Nuevo usuario registrado");
                         }
                     });
-            }
+                }
+                else{
+                    res.redirect("/registrarse?mensaje=Las contraseñas no coinciden");
+
+                }}
         });
     });
 
@@ -50,6 +67,12 @@ module.exports = function (app, swig, gestorBD) {
     app.post("/identificarse", function (req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
+
+        if (!req.body.email.includes("@")) {
+            res.redirect("/identificarse?mensaje=El email no tiene un formato válido");
+            return;
+        }
+
         let criterio = {
             email: req.body.email,
             password: seguro
@@ -74,7 +97,9 @@ module.exports = function (app, swig, gestorBD) {
 
     app.get('/desconectarse', function (req, res) {
         req.session.usuario = null;
-        res.send("Usuario desconectado");
+        res.redirect("/identificarse" +
+            "?mensaje=Ha cerrado sesión con éxito"+
+            "&tipoMensaje=alert-danger ");
     })
 
     app.get("/users/list", function (req, res) {
@@ -91,21 +116,39 @@ module.exports = function (app, swig, gestorBD) {
     });
 
     app.post("/user/delete", function (req, res) {
-        var emails = req.body.emails;
-        var criterio = {email: {$in: emails}};
 
-        gestorBD.eliminarUsuarios(criterio, function (usuarios) {
-            if (usuarios == null) {
-                res.send("Se ha producido un error eliminando un usuario");
-            } else {
-                gestorBD.eliminarOferta(criterio, function (oferta) {
-                    if (oferta == null) {
-                        res.send("Se ha producido un error eliminado una oferta");
-                    } else {
-                        res.redirect("/users/list");
-                    }
+        if(req.session.usuario=="admin@email.com") {
+            var emails= req.body.emails;
+            var criterio= {"email":  emails};
+            var criteriooferta={ "vendedor":emails};
+            gestorBD.eliminarUsuarios(criterio, function (usuarios) {
+                if (usuarios == null) {
+                    res.send("Se ha producido un error eliminando un usuario");
+                } else {
+                    gestorBD.eliminarOferta(criteriooferta, function (oferta) {
+                        if (oferta == null) {
+                            let respuesta = swig.renderFile('views/error.html',
+                                {
+
+                                    mensaje: "Se ha producido un error intentando eliminar una oferta "
+                                });
+                            res.send(respuesta);
+                        } else {
+                            res.redirect("/users/list");
+                        }
+
+
+                    });
+                }
+            });
+        }else {
+            let respuesta = swig.renderFile('views/error.html',
+                {
+
+                    mensaje: "Esta intentado acceder a una funcionalidad exclusiva de administrador "
                 });
-            }
-        });
+            res.send(respuesta);
+        }
+
     });
 };

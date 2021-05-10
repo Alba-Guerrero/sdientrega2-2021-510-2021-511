@@ -11,10 +11,10 @@ module.exports = function (app, swig, gestorBD) {
         let respuesta = swig.renderFile('views/boferta.html', {});
         res.send(respuesta);
     })
-
     /**
      * Metodo para visualizar la tienda(listado de ofertas)
      */
+
     app.get("/tienda", function (req, res) {
         let criterio = {"vendedor": {$ne: req.session.usuario}};
         if (req.query.busqueda != null) {
@@ -77,6 +77,10 @@ module.exports = function (app, swig, gestorBD) {
         });
     });
 
+
+
+
+
     /**
      * Metodo get para comprar una oferta
      */
@@ -107,9 +111,9 @@ module.exports = function (app, swig, gestorBD) {
                         if (user[0].saldo - oferta[0].precio < 0) {
                             res.redirect("/tienda" + "?mensaje=No tienes suficientes dinero" +
                                 "&tipoMensaje=alert-danger ")
-                        } else if (user[0].email === oferta[0].vendedor) {
-                            res.redirect("/tienda" + "?mensaje=No puedes comprar una oferta propia" +
-                                "&tipoMensaje=alert-danger ")
+                        }else if (user[0].email === oferta[0].vendedor) {
+                                res.redirect("/tienda" + "?mensaje=No puedes comprar una oferta propia" +
+                                    "&tipoMensaje=alert-danger ")
 
                         } else {
 
@@ -192,7 +196,6 @@ module.exports = function (app, swig, gestorBD) {
             } else {
                 let respuesta = swig.renderFile('views/error.html',
                     {
-
                         mensaje: "No se puede agregar la oferta"
                     });
                 res.send(respuesta);
@@ -304,6 +307,7 @@ module.exports = function (app, swig, gestorBD) {
     /**
      * Metodo get para ver el listado de ofertas compradas
      */
+
     app.get("/ofertas/compradas", function (req, res) {
         let criterio = {$and: [{"comprada": true}, {"vendedor": {$ne: req.session.usuario}}]};
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
