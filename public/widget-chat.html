@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>Vendedor</th>
+        <th>Oferta</th>
+
+        <th class="col-md-1"></th>
+    </tr>
+    </thead>
+    <tbody id="tablaCuerpo">
+
+    </tbody>
+</table>
+<div id="widget-chat">
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="texto">Email:</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" name="texto"
+                   placeholder="Escribe un mensaje" id="texto" />
+        </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-primary" id="boton-agregar"
+                    onclick="agregarMensaje()">Enviar mensaje</button>
+
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
+
+<script>
+    function cargarMensajes(){
+        $.ajax({
+            url: URLbase + "/oferta/conversacion/"+idOfertaSeleccionada,
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: { "token": token },
+            success: function(respuesta) {
+                mensajes = respuesta;
+                actualizarTabla(mensajes);
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+    function actualizarTabla(mensajesMostrar){
+        console.log(mensajesMostrar);
+        $( "#tablaCuerpo" ).empty(); // Vaciar la tabla
+        for (i = 0; i < ofertasShow.length; i++) {
+            $( "#tablaCuerpo" ).append(
+                "<tr>"+
+                "<td>"+mensajesMostrar[i].usuario+"</td>" +
+                "<td>"+mensajesMostrar[i].detalle+"</td>" +
+                "<td>"+mensajesMostrar[i].precio+"</td>" +
+                "<td>"+mensajesMostrar[i].vendedor+"</td>" +
+                "</tr>" );
+
+        }
+    }
+    cargarOfertas();
+
+
+
+
+
+
+    function agregarMensaje( ) {
+        $("#boton-login").click(function () {
+            $.ajax({
+                url: URLbase + "/oferta/mensaje/" + idOfertaSeleccionada,
+                type: "POST",
+                data: {
+                    texto: $("#texto").val()
+                },
+                dataType: 'json',
+                headers: {"token": token},
+                success: function (respuesta) {
+                    console.log(respuesta);  // <- Prueba
+
+                    $("#contenedor-principal").load("widget-ofertas.html");
+                },
+                error: function (eror) {
+
+                    $("#contenedor-principal").load("widget-login.html");
+                }
+            });
+        });
+    }
+</script>

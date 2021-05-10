@@ -60,14 +60,14 @@ module.exports = function (app, swig, gestorBD) {
             comprador:  req.session.usuario,
             comprada: true
         };
-                gestorBD.obtenerOfertas(criterio, function (ofertas) {
-                    let respuesta = swig.renderFile('views/bcompras.html',
-                        {
-                            ofertas: ofertas
-                        });
-                    res.send(respuesta);
+        gestorBD.obtenerOfertas(criterio, function (ofertas) {
+            let respuesta = swig.renderFile('views/bcompras.html',
+                {
+                    ofertas: ofertas
                 });
-            });
+            res.send(respuesta);
+        });
+    });
 
 
 
@@ -104,8 +104,8 @@ module.exports = function (app, swig, gestorBD) {
                             res.redirect("/tienda" + "?mensaje=No tienes suficientes dinero" +
                                 "&tipoMensaje=alert-danger ")
                         }else if (user[0].email === oferta[0].vendedor) {
-                                res.redirect("/tienda" + "?mensaje=No puedes comprar una oferta propia" +
-                                    "&tipoMensaje=alert-danger ")
+                            res.redirect("/tienda" + "?mensaje=No puedes comprar una oferta propia" +
+                                "&tipoMensaje=alert-danger ")
 
                         } else {
 
@@ -191,15 +191,15 @@ module.exports = function (app, swig, gestorBD) {
             if (id != null) {
                 res.redirect("/ofertas/list?mensaje=Se ha insertado la oferta con éxito");
 
-                } else {
-                    let respuesta = swig.renderFile('views/error.html',
-                        {
+            } else {
+                let respuesta = swig.renderFile('views/error.html',
+                    {
 
-                            mensaje: "No se puede agregar la oferta"
-                        });
-                    res.send(respuesta);
+                        mensaje: "No se puede agregar la oferta"
+                    });
+                res.send(respuesta);
 
-                }
+            }
 
         });
     });
@@ -249,65 +249,65 @@ module.exports = function (app, swig, gestorBD) {
      * Metodo get del lista de ofertas a comprar
      */
 
-app.get("/ofertas/list", function (req, res) {
-    let criterio = {"vendedor": {$ne: req.session.usuario}};
-    if (req.query.busqueda != null) {
-        criterio = {"nombre": {$regex: ".*" + req.query.busqueda + ".*"}};
-    }
-    let pg = parseInt(req.query.pg); // Es String !!!
-    if (req.query.pg == null) { // Puede no venir el param
-        pg = 1;
-    }
-    gestorBD.obtenerOfertasPg(criterio, pg, function (ofertas, total) {
-        if (ofertas == null) {
-            let respuesta = swig.renderFile('views/error.html',
-                {
-
-                    mensaje: "Error al listar "
-                });
-            res.send(respuesta);
-        } else {
-            let ultimaPg = total / 5;
-            if (total % 5 > 0) { // Sobran decimales
-                ultimaPg = ultimaPg + 1;
-            }
-            let paginas = []; // paginas mostrar
-            for (let i = pg - 2; i <= pg + 2; i++) {
-                if (i > 0 && i <= ultimaPg) {
-                    paginas.push(i);
-                }
-            }
-            let respuesta = swig.renderFile('views/btienda.html',
-                {
-                    ofertas: ofertas,
-                    paginas: paginas,
-                    actual: pg
-                });
-            res.send(respuesta);
+    app.get("/ofertas/list", function (req, res) {
+        let criterio = {"vendedor": {$ne: req.session.usuario}};
+        if (req.query.busqueda != null) {
+            criterio = {"nombre": {$regex: ".*" + req.query.busqueda + ".*"}};
         }
-    });
+        let pg = parseInt(req.query.pg); // Es String !!!
+        if (req.query.pg == null) { // Puede no venir el param
+            pg = 1;
+        }
+        gestorBD.obtenerOfertasPg(criterio, pg, function (ofertas, total) {
+            if (ofertas == null) {
+                let respuesta = swig.renderFile('views/error.html',
+                    {
 
-});
+                        mensaje: "Error al listar "
+                    });
+                res.send(respuesta);
+            } else {
+                let ultimaPg = total / 5;
+                if (total % 5 > 0) { // Sobran decimales
+                    ultimaPg = ultimaPg + 1;
+                }
+                let paginas = []; // paginas mostrar
+                for (let i = pg - 2; i <= pg + 2; i++) {
+                    if (i > 0 && i <= ultimaPg) {
+                        paginas.push(i);
+                    }
+                }
+                let respuesta = swig.renderFile('views/btienda.html',
+                    {
+                        ofertas: ofertas,
+                        paginas: paginas,
+                        actual: pg
+                    });
+                res.send(respuesta);
+            }
+        });
+
+    });
 
     /**
      * Método get para eliminar ofertas propias,renderiza vista de ofertas propias
      */
     app.get('/oferta/eliminar/:id', function (req, res) {
-    let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
-    gestorBD.eliminarOferta(criterio, function (ofertas) {
-        if (ofertas == null) {
-            res.send("No se ha podido eliminar esta oferta");
-        } else {
-            res.redirect("/misofertas/list");
-        }
-    });
-})
+        let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
+        gestorBD.eliminarOferta(criterio, function (ofertas) {
+            if (ofertas == null) {
+                res.send("No se ha podido eliminar esta oferta");
+            } else {
+                res.redirect("/misofertas/list");
+            }
+        });
+    })
     /**
      * Metodo get para ver el listado de ofertas compradas
      */
 
     app.get("/ofertas/compradas", function (req, res) {
-       let  criterio = {$and:[{"comprada": true},{"vendedor" :{$ne:req.session.usuario}}]};
+        let  criterio = {$and:[{"comprada": true},{"vendedor" :{$ne:req.session.usuario}}]};
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
                 let respuesta = swig.renderFile('views/error.html',
