@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="widget-ofertas" >
+
+    <button class="btn" onclick="cargarOfertas()" >Actualizar</button>
+</div>
+</body>
+</html>
+<script>
+    window.history.pushState("", "", "/cliente.html?w=ofertas");
+    var ofertas;
+    function cargarOfertas(){
+        $.ajax({
+            url: URLbase + "/oferta",
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: { "token": token },
+            success: function(respuesta) {
+                ofertas = respuesta;
+                actualizarTabla(ofertas);
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+    function actualizarTabla(ofertasShow){
+        $( "#tablaCuerpo" ).empty(); // Vaciar la tabla
+        for (i = 0; i < ofertasShow.length; i++) {
+            $( "#tablaCuerpo" ).append(
+                "<td>"+ofertasShow[i].title+"</td>" +
+                "<td>"+ofertasShow[i].detalle+"</td>" +
+                "<td>"+ofertasShow[i].precio+"</td>" +
+                "<td>"+ofertasShow[i].vendedor+"</td>" +
+                "</tr>" );
+
+        }
+    }
+    cargarOfertas();
+
+
+
+</script>
+
