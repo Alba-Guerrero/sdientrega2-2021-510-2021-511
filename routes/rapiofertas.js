@@ -1,9 +1,6 @@
 module.exports = function(app, gestorBD) {
 
-    app.get("/api/identificarse", function(req, res) {
-        let respuesta = swig.renderFile('views/bidentificacion.html', {});
-        res.send(respuesta);
-    });
+
 
     app.post("/api/identificarse", function(req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
@@ -32,7 +29,7 @@ module.exports = function(app, gestorBD) {
         });
     });
 
-    app.post("/api/oferta", function(req, res) {
+    app.get("/api/oferta", function(req, res) {
         let criterio = {"vendedor": {$ne: req.body.email }};
         gestorBD.obtenerOfertas( criterio , function(ofertas) {
             if (ofertas == null) {

@@ -42,7 +42,7 @@ app.get('/', function (req, res) {
     res.redirect('/home');
 })
 
-require("./routes/rapi.js")(app, gestorBD);
+require("./routes/rapiofertas.js")(app, gestorBD);
 //Api
 let routerUsuarioToken = express.Router();
 routerUsuarioToken.use(function(req, res, next) {

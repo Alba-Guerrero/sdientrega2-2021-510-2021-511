@@ -8,6 +8,22 @@
 <div id="widget-ofertas" >
 
     <button class="btn" onclick="cargarOfertas()" >Actualizar</button>
+
+
+    <table class="table table-hover">
+    <thead>
+    <tr>
+        <th>Titulo</th>
+        <th>Detalle</th>
+        <th>Precio</th>
+        <th>Vendedor</th>
+        <th class="col-md-1"></th>
+    </tr>
+    </thead>
+    <tbody id="tablaCuerpo">
+
+    </tbody>
+    </table>
 </div>
 </body>
 </html>
@@ -31,9 +47,11 @@
         });
     }
     function actualizarTabla(ofertasShow){
+        console.log(ofertasShow);
         $( "#tablaCuerpo" ).empty(); // Vaciar la tabla
         for (i = 0; i < ofertasShow.length; i++) {
             $( "#tablaCuerpo" ).append(
+                "<tr>"+
                 "<td>"+ofertasShow[i].title+"</td>" +
                 "<td>"+ofertasShow[i].detalle+"</td>" +
                 "<td>"+ofertasShow[i].precio+"</td>" +
