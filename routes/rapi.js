@@ -81,7 +81,7 @@ module.exports = function (app, gestorBD) {
 
                         let mensaje = {
                             emisor: res.usuario,
-                            receptor: null,
+                            receptor: '',
                             oferta: oferta._id,
                             texto: req.body.texto,
                             fecha: new Date(),
@@ -91,6 +91,25 @@ module.exports = function (app, gestorBD) {
                         gestorBD.obtenerConversacion(conversacion, function (converRespuesta1) {
                             if (converRespuesta1.length != 0) {
 
+                                if(res.usuario == ofertaRespuesta[0].vendedor)
+                                    mensaje.receptor = converRespuesta1[0].interesado;
+                                else
+                                    mensaje.receptor = ofertaRespuesta[0].vendedor;
+
+                                gestorBD.insertarMensaje(mensaje, function (id) {
+                                    if (id == null) {
+                                        res.status(500);
+                                        res.json({
+                                            error: "Se ha producido un error al insertar mensaje"
+                                        })
+                                    } else {
+                                        res.status(200);
+                                        res.json({
+                                            mensaje: "Mensaje insertado correctamente",
+                                            _id: id
+                                        })
+                                    }
+                                });
                             } else {
                                 conversacion = {
                                     interesado : res.usuario,
@@ -105,24 +124,27 @@ module.exports = function (app, gestorBD) {
                                             error: "Se ha producido un error al insertar conversacion"
                                         })
                                     } else {
+                                        if(res.usuario == ofertaRespuesta[0].vendedor)
+                                            mensaje.receptor = converRespuesta2.interesado;
+                                        else
+                                            mensaje.receptor = ofertaRespuesta[0].vendedor;
 
+                                        gestorBD.insertarMensaje(mensaje, function (id) {
+                                            if (id == null) {
+                                                res.status(500);
+                                                res.json({
+                                                    error: "Se ha producido un error al insertar mensaje"
+                                                })
+                                            } else {
+                                                res.status(200);
+                                                res.json({
+                                                    mensaje: "Mensaje insertado correctamente",
+                                                    _id: id
+                                                })
+                                            }
+                                        });
                                     }
                                 });
-                            }
-                        });
-
-                        gestorBD.insertarMensaje(mensaje, function (id) {
-                            if (id == null) {
-                                res.status(500);
-                                res.json({
-                                    error: "Se ha producido un error al insertar mensaje"
-                                })
-                            } else {
-                                res.status(200);
-                                res.json({
-                                    mensaje: "Mensaje insertado correctamente",
-                                    _id: id
-                                })
                             }
                         });
                     }
