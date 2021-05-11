@@ -8,7 +8,9 @@ module.exports = function (app, swig, gestorBD) {
             res.redirect("/oferta/list");
             return;
         }
-        let respuesta = swig.renderFile('views/boferta.html', {});
+        let respuesta = swig.renderFile('views/boferta.html', {
+            usuario:req.session.usuario,
+        });
         res.send(respuesta);
     })
     /**
@@ -18,7 +20,14 @@ module.exports = function (app, swig, gestorBD) {
     app.get("/tienda", function (req, res) {
         let criterio = {"vendedor": {$ne: req.session.usuario}};
         if (req.query.busqueda != null) {
-            criterio = {$and:[{"title": {$regex: ".*" + req.query.busqueda + ".*",'$options' : 'i'}},{vendedor:{$ne:req.session.usuario}}]};
+            criterio = {
+                $and: [{
+                    "title": {
+                        $regex: ".*" + req.query.busqueda + ".*",
+                        '$options': 'i'
+                    }
+                }, {vendedor: {$ne: req.session.usuario}}]
+            };
             //criterio={"title": {$regex: ".*" + req.query.busqueda + ".*",'$options' : 'i'}};
         }
         let pg = parseInt(req.query.pg);
@@ -34,8 +43,8 @@ module.exports = function (app, swig, gestorBD) {
                     });
                 res.send(respuesta);
             } else {
-                let ultimaPg = total / 4;
-                if (total % 4 > 0) { // Sobran decimales
+                let ultimaPg = total / 5;
+                if (total % 5> 0) { // Sobran decimales
                     ultimaPg = ultimaPg + 1;
                 }
                 let paginas = []; // paginas mostrar
@@ -45,7 +54,7 @@ module.exports = function (app, swig, gestorBD) {
                     }
                 }
                 let respuesta = swig.renderFile('views/btienda.html',
-                    {
+                    {   usuario:req.session.usuario,
                         ofertas: ofertas,
                         paginas: paginas,
                         actual: pg
@@ -55,9 +64,10 @@ module.exports = function (app, swig, gestorBD) {
         });
 
     });
+
     app.get("/compras", function (req, res) {
         let criterio = {
-            comprador:  req.session.usuario,
+            comprador: req.session.usuario,
             comprada: true
         };
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
@@ -78,7 +88,7 @@ module.exports = function (app, swig, gestorBD) {
      */
     app.get('/oferta/comprar/:id', function (req, res) {
         let ofertaId = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
-        let usuarioId ={email:req.session.usuario};
+        let usuarioId = {email: req.session.usuario};
 
         gestorBD.obtenerUsuarios(usuarioId, function (user) {
             if (user == null || user.length == 0) {
@@ -104,8 +114,8 @@ module.exports = function (app, swig, gestorBD) {
                             res.redirect("/tienda" + "?mensaje=No tienes suficientes dinero" +
                                 "&tipoMensaje=alert-danger ")
                         }else if (user[0].email === oferta[0].vendedor) {
-                            res.redirect("/tienda" + "?mensaje=No puedes comprar una oferta propia" +
-                                "&tipoMensaje=alert-danger ")
+                                res.redirect("/tienda" + "?mensaje=No puedes comprar una oferta propia" +
+                                    "&tipoMensaje=alert-danger ")
 
                         } else {
 
@@ -152,14 +162,11 @@ module.exports = function (app, swig, gestorBD) {
     /**
      * Metodo post de añadir una oferta
      */
-
-
     app.post("/oferta", function (req, res) {
         if (req.session.usuario == null) {
             res.redirect("/identificarse");
             return;
         }
-
         if (req.body.title < 2) {
             res.redirect("/oferta/add?mensaje=El título debe tener más de 2 caracteres");
             return;
@@ -168,24 +175,21 @@ module.exports = function (app, swig, gestorBD) {
             res.redirect("/oferta/add?mensaje=La descricpión debe tener más de 2 caracteres");
             return;
         }
-
-        if ( req.body.precio < 0) {
+        if (req.body.precio < 0) {
             res.redirect("/oferta/add?mensaje=El precio contiene un valor negativo");
             return;
         }
+
         var ofer = {
             title: req.body.title,
             detalle: req.body.detalle,
             desripcion: req.body.descripcion,
             fecha: new Date(),
             precio: req.body.precio,
-            vendedor:req.session.usuario,
-            comprada:false,
-            comprador:""
-
-
+            vendedor: req.session.usuario,
+            comprada: false,
+            comprador: ""
         }
-
 
         gestorBD.insertarOferta(ofer, function (id) {
             if (id != null) {
@@ -194,22 +198,20 @@ module.exports = function (app, swig, gestorBD) {
             } else {
                 let respuesta = swig.renderFile('views/error.html',
                     {
-
                         mensaje: "No se puede agregar la oferta"
                     });
                 res.send(respuesta);
-
             }
-
         });
     });
+
     /**
      * Metodo get de ofertas propias
      */
     app.get("/misofertas/list", function (req, res) {
         let criterio = {};
         if (req.query.busqueda != null) {
-            criterio = {"title": {$regex: ".*" + req.query.busqueda + ".*", '$options' : 'i'}};
+            criterio = {"title": {$regex: ".*" + req.query.busqueda + ".*", '$options': 'i'}};
         }
         let pg = parseInt(req.query.pg); // Es String !!!
         if (req.query.pg == null) { // Puede no venir el param
@@ -235,7 +237,7 @@ module.exports = function (app, swig, gestorBD) {
                     }
                 }
                 let respuesta = swig.renderFile('views/bofertaspropias.html',
-                    {
+                    {   usuario:req.session.usuario,
                         ofertas: ofertas,
                         paginas: paginas,
                         actual: pg
@@ -245,24 +247,25 @@ module.exports = function (app, swig, gestorBD) {
         });
 
     });
+
     /**
      * Metodo get del lista de ofertas a comprar
      */
-
     app.get("/ofertas/list", function (req, res) {
         let criterio = {"vendedor": {$ne: req.session.usuario}};
         if (req.query.busqueda != null) {
             criterio = {"nombre": {$regex: ".*" + req.query.busqueda + ".*"}};
         }
+
         let pg = parseInt(req.query.pg); // Es String !!!
         if (req.query.pg == null) { // Puede no venir el param
             pg = 1;
         }
+
         gestorBD.obtenerOfertasPg(criterio, pg, function (ofertas, total) {
             if (ofertas == null) {
                 let respuesta = swig.renderFile('views/error.html',
                     {
-
                         mensaje: "Error al listar "
                     });
                 res.send(respuesta);
@@ -279,7 +282,7 @@ module.exports = function (app, swig, gestorBD) {
                 }
                 let respuesta = swig.renderFile('views/btienda.html',
                     {
-                        usuario:req.session.usuario,
+                        usuario: req.session.usuario,
                         ofertas: ofertas,
                         paginas: paginas,
                         actual: pg
@@ -287,7 +290,6 @@ module.exports = function (app, swig, gestorBD) {
                 res.send(respuesta);
             }
         });
-
     });
 
     /**
@@ -297,18 +299,25 @@ module.exports = function (app, swig, gestorBD) {
         let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
         gestorBD.eliminarOferta(criterio, function (ofertas) {
             if (ofertas == null) {
-                res.send("No se ha podido eliminar esta oferta");
+                let respuesta = swig.renderFile('views/error.html',
+                    {
+
+                        mensaje: "No se ha podido eliminar esta oferta "
+                    });
+                res.send(respuesta);
+
             } else {
                 res.redirect("/misofertas/list");
             }
         });
     })
+
     /**
      * Metodo get para ver el listado de ofertas compradas
      */
 
     app.get("/ofertas/compradas", function (req, res) {
-        let  criterio = {$and:[{"comprada": true},{"vendedor" :{$ne:req.session.usuario}}]};
+        let criterio = {$and: [{"comprada": true}, {"vendedor": {$ne: req.session.usuario}}]};
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
                 let respuesta = swig.renderFile('views/error.html',
@@ -321,14 +330,12 @@ module.exports = function (app, swig, gestorBD) {
 
                 let respuesta = swig.renderFile('views/bofertascompradas.html',
                     {
+                        usuario:req.session.usuario,
                         ofertas: ofertas,
 
                     });
                 res.send(respuesta);
             }
         });
-
     });
-
-
 };

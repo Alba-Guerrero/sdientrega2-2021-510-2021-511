@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="1">
     <title>Title</title>
 </head>
 <body>
@@ -42,13 +41,13 @@
             url: URLbase + "/oferta/mensaje/"+idOfertaSeleccionada,
             type: "POST",
             data: {
-                mensaje : $("#mensaje").val()
+                texto : $("#mensaje").val()
             },
             dataType: 'json',
+            headers: { "token": token },
             success: function(respuesta){
-                console.log(respuesta.token);  // <- Prueba
-                token = respuesta.token;
-                $("#contenedor-principal").load("widget-ofertas.html");
+                console.log(respuesta);
+                cargarMensajes();
             },
             error : function (eror) {
                 $( "#contenedor-principal" ).load("widget-login.html");
@@ -70,7 +69,7 @@
                 actualizarTabla(mensajes);
             },
             error: function (error) {
-                $("#contenedor-principal").load("widget-login.html");
+               $("#contenedor-principal").load("widget-login.html");
             }
         });
     }
@@ -101,9 +100,9 @@
                 }
             }
         }
-
+/*
         $(document).ready(function () {
             setTimeout(cargarMensajes, 1000);
-        });
+        });*/
 
 </script>

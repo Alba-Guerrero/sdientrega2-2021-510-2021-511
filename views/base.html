@@ -25,19 +25,19 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                {% if usuario ==null %}
+                {% if usuario == null %}
 
-                <li id="lista" class="active"><a href="/ofertas/list">Listado de ofertas</a></li>
+                <li id="lista" class="active"><a href="/tienda">Listado de ofertas</a></li>
                 {% endif %}
                 {% if usuario!=null && usuario == "admin@email.com" %}
 
                 <li id="listaUsuarios"><a href="/user/list">Listado de usuarios</a></li>
                 {% endif %}
                 {% if usuario!=null && usuario != "admin@email.com" %}
-                <li id="listaoferta" class="active"><a href="/ofertas/list">Listado de ofertas</a></li>
+                <li id="listaoferta" class="active"><a href="/tienda">Listado de ofertas</a></li>
                 <li id="coferta" class="active"><a href="/oferta/add">Crear Oferta</a></li>
-                <li id="Boferta" class="active"><a href="/oferta/add">Buscar Oferta</a></li>
-                <li id="Comferta" class="active"><a href="/compradas">Lista de ofertas compradas</a></li>
+                <li id="Boferta" class="active"><a href="/ofertas/list">Buscar Oferta</a></li>
+                <li id="Comferta" class="active"><a href="/ofertas/compradas">Lista de ofertas compradas</a></li>
                 {% endif %}
 
 

@@ -4,8 +4,6 @@ let app= express();
 let expressSession = require('express-session');
 let jwt = require('jsonwebtoken');
 app.set('jwt',jwt);
-let rest = require('request');
-app.set('rest',rest);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -44,17 +42,13 @@ app.set('port',8081);
 app.set('db','mongodb://admin:admin@mywallapop-shard-00-00.7adn3.mongodb.net:27017,mywallapop-shard-00-01.7adn3.mongodb.net:27017,mywallapop-shard-00-02.7adn3.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-3o8e26-shard-0&authSource=admin&retryWrites=true&w=majority');
 app.set('clave','abcdefg');
 app.set('crypto',crypto);
-//Rutas/controladores por lógica
 
-
+//Redireccion
 app.get('/', function (req, res) {
-    res.redirect('/home');
+    res.redirect('/identificarse');
 })
 
-
-
-
-//Api
+//RouterUsuarioToken
 let routerUsuarioToken = express.Router();
 routerUsuarioToken.use(function(req, res, next) {
     let token = req.headers['token'] || req.body.token || req.query.token;
@@ -82,11 +76,52 @@ routerUsuarioToken.use(function(req, res, next) {
         });
     }
 });
-// Aplicar routerUsuarioToken
+
+//RouterUsuario
+var routerUsuarioSession = express.Router();
+routerUsuarioSession.use(function(req, res, next) {
+    if ( req.session.usuario ) {
+        next();
+    } else {
+        res.redirect("/identificarse");
+    }
+});
+
+//RouterAdmin
+var routerAdminSession = express.Router();
+routerAdminSession.use(function(req, res, next) {
+    if ( req.session.usuario === "admin@email.com" )
+        next();
+    else {
+        if( req.session.usuario )
+            res.redirect("/ofertas/list");
+        else
+            res.redirect("/identificarse");
+    }
+});
+
+
+//RoutersAdmin
+app.use("/users/list",routerAdminSession);
+app.use("/users/delete",routerAdminSession);
+
+//RoutersUsuario
+
+app.use("/compras",routerUsuarioSession);
+app.use("/oferta/add",routerUsuarioSession);
+app.use("/oferta",routerUsuarioSession);
+app.use("/ofertas/list",routerUsuarioSession);
+app.use("/ofertas/compradas",routerUsuarioSession);
+app.use("/misofertas/list",routerUsuarioSession);
+
+//RouterToken
 app.use('/api/oferta', routerUsuarioToken);
-require("./routes/rapiofertas.js")(app, gestorBD);
-require("./routes/rusuarios.js")(app,swig,gestorBD); // (app, param1, param2, etc.)
-require("./routes/rofertas.js")(app,swig,gestorBD); // (app, param1, param2, etc.)
+
+//Requires
+require("./routes/rapi.js")(app, gestorBD);
+require("./routes/rusuarios.js")(app,swig,gestorBD);
+require("./routes/rofertas.js")(app,swig,gestorBD);
+
 app.listen(app.get('port'),function (){
     console.log('Servidor activo');
 });
