@@ -21,6 +21,14 @@ module.exports = function (app, swig, gestorBD) {
             res.redirect("/registrarse?mensaje=El apellido contiene menos de 2 caracteres");
             return;
         }
+        if (req.body.password.length < 5) {
+            res.redirect("/registrarse?mensaje=La contraseña contiene menos de 5 caracteres");
+            return;
+        }
+        if (req.body.repeatpassword.length < 5) {
+            res.redirect("/registrarse?mensaje=La contraseña repetida contiene menos de 5 caracteres");
+            return;
+        }
 
         let usuario = {
             email: req.body.email,
@@ -32,29 +40,28 @@ module.exports = function (app, swig, gestorBD) {
 
         }
         let usuarioCheck = {
-            email: req.body.email,
-            password: seguro
+            email: req.body.email
         }
 
         gestorBD.obtenerUsuarios(usuarioCheck, function (usuarios) {
             if (usuarios.length != 0) {
-                res.redirect("/identificarse" +
+                res.redirect("/registrarse" +
                     "?mensaje=Este usuario ya existe en el sistema" +
                     "&tipoMensaje=alert-danger ");
             } else {
-                if (req.body.password === req.body.repeatpassword){
+                if (req.body.password === req.body.repeatpassword) {
 
                     gestorBD.insertarUsuario(usuario, function (id) {
                         if (id == null) {
                             res.redirect("/registrarse?mensaje=Error al registrar usuario");
                         } else {
-                            res.redirect("/identificarse?mensaje=Nuevo usuario registrado");
+                            req.session.usuario = usuarioCheck.email;
+                            res.redirect("/ofertas/list?mensaje=Nuevo usuario registrado");
                         }
                     });
                 }
                 else{
                     res.redirect("/registrarse?mensaje=Las contraseñas no coinciden");
-
                 }}
         });
     });
