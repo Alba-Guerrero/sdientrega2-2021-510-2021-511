@@ -45,6 +45,7 @@
                 console.log(respuesta.token);  // <- Prueba
                 token = respuesta.token;
                 Cookies.set('token', respuesta.token);
+                Cookies.set('usuarioEnSesion', $("#email").val());
                 $("#contenedor-principal").load("widget-ofertas.html");
             },
             error : function (eror) {
