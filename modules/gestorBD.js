@@ -206,4 +206,40 @@ module.exports = {
             }
         });
     },
+
+    insertarConversacion: function (conversacion, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('conversaciones');
+                collection.insertOne(conversacion, function (err, result) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(conversacion);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+
+    obtenerConversacion: function (criterio, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('conversaciones');
+                collection.find(criterio).toArray(function (err, conversacion) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(conversacion);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
 };
