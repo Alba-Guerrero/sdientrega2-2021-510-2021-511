@@ -128,7 +128,7 @@ module.exports = function (app, swig, gestorBD) {
             var emails= req.body.emails;
 
             if(typeof emails =='string') {
-                var criterio={ email: emails}
+                var criterio = { email: emails}
             } else {
                 criterio={ email: {$in: emails}}
             }

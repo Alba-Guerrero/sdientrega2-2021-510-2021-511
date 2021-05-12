@@ -244,7 +244,6 @@ module.exports = function (app, gestorBD) {
                         });
                     }
                 });
-
     });
 
 
@@ -294,6 +293,39 @@ module.exports = function (app, gestorBD) {
                         });
                     }
                 });
+            }
+        });
+    });
+
+    app.put("/api/oferta/mensaje/leido/:id", function (req, res) {
+        let criterio = {_id : gestorBD.mongo.ObjectID(req.params.id)};
+        let mensaje = {leido : true};
+
+        gestorBD.obtenerMensaje(criterio, function (mensajeRespuesta1) {
+            if (mensajeRespuesta1 == null) {
+                res.status(500);
+                res.json({
+                    error: "Se ha producido un error al obtener oferta"
+                })
+            } else if(res.usuario == mensajeRespuesta1[0].emisor || res.usuario == mensajeRespuesta1[0].receptor) {
+                gestorBD.modificarMensaje(criterio, mensaje, function (respuesta) {
+                    if (respuesta == null) {
+                        res.status(500);
+                        res.json({
+                            error: "Se ha producido un error al obtener oferta"
+                        })
+                    } else {
+                        res.status(200);
+                        res.send({
+                            respuesta : "Se ha modificado correctamente"
+                        });
+                    }
+                });
+            } else {
+                res.status(500);
+                res.json({
+                    error: "No es el emisor o el receptor del mensaje"
+                })
             }
         });
     });
