@@ -89,6 +89,7 @@ module.exports = function (app, swig, gestorBD) {
                     res.redirect("/users/list");
                 } else {
                     req.session.usuario = usuarios[0].email;
+
                     res.redirect("/ofertas/list");
                 }
             }
@@ -119,9 +120,28 @@ module.exports = function (app, swig, gestorBD) {
 
         if(req.session.usuario=="admin@email.com") {
             var emails= req.body.emails;
-            var criterio= {"email":  {$in: emails}};
-            var criteriooferta={ "vendedor": {$in:emails}};
+           if(typeof emails =='string'){
+
+               var criterio={ email: emails}
+           }else{
+
+               criterio={ email: {$in: emails}}
+           }
+
+            if(typeof emails =='string'){
+
+                var criteriooferta={ vendedor:  emails};
+            }else{
+
+                 criteriooferta={ vendedor: { $in: emails}};
+            }
+
+
+
+
+
             gestorBD.eliminarUsuarios(criterio, function (usuarios) {
+
                 if (usuarios == null) {
                     let respuesta = swig.renderFile('views/error.html',
                         {

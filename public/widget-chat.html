@@ -6,15 +6,31 @@
 </head>
 <body>
 
+<!-- Barra de Navegación superior -->
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+
+                <li id="lista" class="active"><a  onclick=verOfertas()>Ofertas</a></li>
+                <li id="lista" class="active"><a onclick=verConversaciones()>Conversaciones</a></li>
+
+            </ul>
+
+        </div>
+    </div>
+</nav>
 
 
 <div id="widget-chat">
-    <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-            <button type="button" class="btn btn-primary" id="boton-conver"
-                    onclick="verConversaciones()">Ver listado de conversaciones</button>
-        </div>
-    </div>
+
 
 
     <div class="form-group">
@@ -33,7 +49,7 @@
     </div>
 </div>
 
-<table class="table table-hover">
+<table class="table ">
 
 <tbody id="tablaMensaje">
 
@@ -45,10 +61,10 @@
 </html>
 
 <script>
-
+    window.history.pushState("", "", "/cliente.html?w=chat");
     function enviarMensaje( ) {
         $.ajax({
-            url: URLbase + "/oferta/mensaje/"+idOfertaSeleccionada,
+            url: URLbase + "/oferta/mensaje/"+idOfertaSeleccionada+"/"+idInteresado,
             type: "POST",
             data: {
                 texto : $("#mensaje").val()
@@ -56,13 +72,13 @@
             dataType: 'json',
             headers: { "token": token },
             success: function(respuesta){
-                console.log(respuesta);
                 cargarMensajes();
             },
             error : function (eror) {
                 $( "#contenedor-principal" ).load("widget-login.html");
             }
         });
+
 
     }
 
@@ -75,6 +91,7 @@
             dataType: 'json',
             headers: {"token": token},
             success: function (respuesta) {
+                console.log(respuesta);
                 mensajes = respuesta;
                 actualizarTabla(mensajes);
             },
@@ -89,23 +106,20 @@
         console.log(mensajeMostrar);
         $("#tablaMensaje").empty(); // Vaciar la tabla
         for (i = 0; i < mensajeMostrar.length; i++) {
-            if (mensajeMostrar[i].emisor == Cookies.get('usuarioEnSesion')) {
+            if (mensajeMostrar[i].emisor !=  Cookies.get('usuarioEnSesion')) {
                 $("#tablaMensaje").append(
 
-                "<tr style='text-align:left'>" +
-                "<td>" + mensajeMostrar[i].emisor + "</td>" +
-                "<td>" + mensajeMostrar[i].texto + "</td>" +
-                "<td type='date''>" + mensajeMostrar[i].fecha + "</td>" +
-                "<td>" +
+                "<tr style='text-align:left; background: paleturquoise;'>" +
+                    "<td>"+mensajeMostrar[i].fecha+ "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+mensajeMostrar[i].texto+"</td>" +
                 "</tr>")
             }
-            if (mensajeMostrar[i].emisor != Cookies.get('usuarioEnSesion')){
+           if (mensajeMostrar[i].emisor  ==Cookies.get('usuarioEnSesion')){
+                console.log("emisor")
                 $("#tablaMensaje").append(
-                "<tr style='text-align:right'>"+
-                "<td>"+mensajeMostrar[i].receptor+"</td>" +
-                "<td>"+mensajeMostrar[i].texto+"</td>" +
-                "<td type='date''>"+mensajeMostrar[i].fecha+"</td>" +
-                "<td>"+
+                "<tr style='text-align:right; background: palegreen;'>"+
+
+                "<td>"+mensajeMostrar[i].texto+ "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+mensajeMostrar[i].fecha+"</td>" +
+
                 "</tr>");
 
         }
@@ -118,8 +132,9 @@
         $( "#contenedor-principal" ).load( "widget-conversaciones.html");
     }
 
-        $(document).ready(function () {
-            setTimeout(cargarMensajes, 1000);
-        });
+       /* $(document).ready(function () {
+            setTimeout(cargarMensajes(), 1000);
+        });*/
+    setInterval('cargarMensajes()',1000);
 
 </script>

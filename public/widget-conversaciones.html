@@ -5,6 +5,27 @@
     <title>Title</title>
 </head>
 <body>
+<!-- Barra de Navegación superior -->
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+
+                <li id="lista" class="active"><a  onclick=verOfertas()>Ofertas</a></li>
+                <li id="lista" class="active"><a onclick=verConversaciones()>Conversaciones</a</li>
+
+            </ul>
+
+        </div>
+    </div>
+</nav>
 <div id="widget-conversaciones" >
 
     <button class="btn" onclick="cargarConversacion()" >Actualizar</button>
@@ -19,7 +40,7 @@
             <th class="col-md-1"></th>
         </tr>
         </thead>
-        <tbody id="tablaCuerpo">
+        <tbody id="tablaConver">
 
         </tbody>
     </table>
@@ -27,6 +48,11 @@
 </body>
 </html>
 <script>
+
+
+    $(document).ready(function () {cargarConversacion()});
+
+
     window.history.pushState("", "", "/cliente.html?w=conversacion");
     var conversaciones;
     function cargarConversacion(){
@@ -37,34 +63,34 @@
             dataType: 'json',
             headers: { "token": token },
             success: function(respuesta) {
-                console.log(respuesta);
                 conversaciones = respuesta;
-                actualizarTabla(conversaciones);
+                actualizarTablaConver(conversaciones);
             },
             error : function (error){
                 $( "#contenedor-principal" ).load("widget-login.html");
             }
         });
     }
-    function actualizarTabla(conver){
+    function actualizarTablaConver(conver){
         console.log(conver);
-        $( "#tablaCuerpo" ).empty(); // Vaciar la tabla
+        $( "#tablaConver" ).empty(); // Vaciar la tabla
         for (i = 0; i < conver.length; i++) {
-            $( "#tablaCuerpo" ).append(
+            $( "#tablaConver" ).append(
                 "<tr>"+
-                "<td>"+conver[i].oferta+"</td>" +
+                "<td>"+conver[i].title+"</td>" +
                 "<td>"+conver[i].interesado+"</td>" +
                 "<td>"+conver[i].vendedor+"</td>" +
                 "<td>"+
-                "<a onclick=enviarMensajes('"+conver[i]._id+"')>Enviar mensaje</a><br>"+
+                "<a onclick=enviarMensajes('"+conver[i].oferta+"','"+conver[i].interesado+"')>Enviar mensaje</a><br>"+
                 "</tr>" );
 
         }
     }
 
 
-    function enviarMensajes(_id) {
-        idConversacion = _id;
+    function enviarMensajes(_id,interesado) {
+        idOfertaSeleccionada = _id;
+        idInteresado=interesado;
         $( "#contenedor-principal" ).load( "widget-chat.html");
     }
 

@@ -10,6 +10,7 @@ module.exports = function (app, swig, gestorBD) {
         }
         let respuesta = swig.renderFile('views/boferta.html', {
             usuario:req.session.usuario,
+
         });
         res.send(respuesta);
     })
@@ -209,7 +210,7 @@ module.exports = function (app, swig, gestorBD) {
      * Metodo get de ofertas propias
      */
     app.get("/misofertas/list", function (req, res) {
-        let criterio = {};
+        let criterio = {vendedor: {$eq: req.session.usuario}};
         if (req.query.busqueda != null) {
             criterio = {"title": {$regex: ".*" + req.query.busqueda + ".*", '$options': 'i'}};
         }

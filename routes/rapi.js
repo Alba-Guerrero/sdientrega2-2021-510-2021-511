@@ -52,7 +52,8 @@ module.exports = function (app, gestorBD) {
     /**
      * Metodo post para añadir un mensaje
      */
-    app.post("/api/oferta/mensaje/:id", function (req, res) {
+    app.post("/api/oferta/mensaje/:id/:interesado", function (req, res) {
+
         let emisor = {email: res.usuario}
 
         gestorBD.obtenerUsuarios(emisor, function (usuarioEmisor) {
@@ -73,14 +74,18 @@ module.exports = function (app, gestorBD) {
                         })
 
                     } else {
+
                         let conversacion = {
-                            interesado: res.usuario,
+                            interesado: req.params.interesado,
+                            vendedor:ofertaRespuesta[0].vendedor,
                             oferta: oferta._id
+
                         }
+
 
                         let mensaje = {
                             emisor: res.usuario,
-                            receptor: '',
+                            receptor: "",
                             oferta: oferta._id,
                             texto: req.body.texto,
                             fecha: new Date(),
@@ -88,13 +93,15 @@ module.exports = function (app, gestorBD) {
                         }
 
                         gestorBD.obtenerConversacion(conversacion, function (converRespuesta1) {
-                            if (converRespuesta1.length != 0) {
+                            if (converRespuesta1.length != 0 && converRespuesta1!=null) {
 
-                                if (res.usuario == ofertaRespuesta[0].vendedor)
-                                    mensaje.receptor = converRespuesta1[0].interesado;
+                                if (res.usuario == converRespuesta1[0].vendedor)
+                                    mensaje.receptor = converRespuesta1[0].interesado
+
                                 else
-                                    mensaje.receptor = ofertaRespuesta[0].vendedor;
+                                    mensaje.receptor = converRespuesta1[0].vendedor;
 
+                                console.log(mensaje.receptor);
                                 gestorBD.insertarMensaje(mensaje, function (id) {
                                     if (id == null) {
                                         res.status(500);
@@ -111,9 +118,10 @@ module.exports = function (app, gestorBD) {
                                 });
                             } else {
                                 conversacion = {
-                                    interesado: res.usuario,
+                                    interesado: req.params.interesado,
                                     vendedor: ofertaRespuesta[0].vendedor,
-                                    oferta: ofertaRespuesta[0]._id
+                                    oferta: ofertaRespuesta[0]._id,
+                                    title:ofertaRespuesta[0].title
                                 }
 
                                 gestorBD.insertarConversacion(conversacion, function (converRespuesta2) {
@@ -153,6 +161,7 @@ module.exports = function (app, gestorBD) {
     });
 
     app.get("/api/conversacion/:id", function (req, res) {
+
         var usuario = {email: res.usuario};
         gestorBD.obtenerUsuarios(usuario, function (usuarioEmisor) {
             if (usuarioEmisor.length == 0) {
@@ -189,6 +198,7 @@ module.exports = function (app, gestorBD) {
                                 res.status(200);
                                 res.send(JSON.stringify(mensajeRespuesta));
 
+
                             }
                         });
                     }
@@ -201,10 +211,10 @@ module.exports = function (app, gestorBD) {
     /**
      * Metodo post para obtener mensajes de una conversaciones
      */
-    app.get("/api/conversaciones/", function (req, res) {
+    app.get("/api/conversaciones", function (req, res) {
 
+       var usuario = {email: res.usuario};
 
-        var usuario = {email: res.usuario};
 
         gestorBD.obtenerUsuarios(usuario, function (usuarioEmisor) {
             if (usuarioEmisor.length == 0) {
@@ -227,7 +237,7 @@ module.exports = function (app, gestorBD) {
                                     error: "Se ha producido un error al obtener la conversacion"
                                 })
                             } else {
-                              console.log(mensajeRespuesta);
+
                                 res.status(200);
                                 res.send(JSON.stringify(mensajeRespuesta));
                             }
@@ -266,8 +276,8 @@ module.exports = function (app, gestorBD) {
                     } else  {
                         let criterio = { oferta :ofertas[0]._id ,
                             $or: [
-                                { emisor : ofertas[0].vendedor, receptor : res.usuario},
-                                { emisor : res.usuario, receptor : ofertas[0].vendedor}
+                                { emisor : ofertas[0].vendedor},
+                                { receptor : ofertas[0].vendedor}
                             ]}
 
                         gestorBD.obtenerMensaje(criterio, function (mensajeRespuesta) {
@@ -277,7 +287,7 @@ module.exports = function (app, gestorBD) {
                                     error: "Se ha producido un error al obtener oferta"
                                 })
                             } else {
-
+                                console.log(mensajeRespuesta);
                                 res.status(200);
                                 res.send(JSON.stringify(mensajeRespuesta));
                             }
