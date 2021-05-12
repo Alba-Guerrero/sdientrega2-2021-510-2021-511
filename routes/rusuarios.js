@@ -125,9 +125,12 @@ module.exports = function (app, swig, gestorBD) {
     app.post("/user/delete", function (req, res) {
 
         if(req.session.usuario=="admin@email.com") {
-            var emails= req.body.emails;
-            var criterio= {"email":  {$in: emails}};
-            var criteriooferta={ "vendedor": {$in:emails}};
+            let emails= req.body.emails;
+            let criterio= {"email":  {$in: emails}};
+            let criteriooferta={ "vendedor": {$in:emails}};
+            let criterioConver = { $or : [{vendedor: {$in : emails}, interesado : {$in: emails}} ]};
+            let criterioMensa = { $or : [{emisor: {$in : emails}, receptor: {$in: emails}} ]};
+
             gestorBD.eliminarUsuarios(criterio, function (usuarios) {
                 if (usuarios == null) {
                     let respuesta = swig.renderFile('views/error.html',
@@ -141,15 +144,32 @@ module.exports = function (app, swig, gestorBD) {
                         if (oferta == null) {
                             let respuesta = swig.renderFile('views/error.html',
                                 {
-
                                     mensaje: "Se ha producido un error intentando eliminar una oferta "
                                 });
                             res.send(respuesta);
                         } else {
-                            res.redirect("/users/list");
+                            gestorBD.eliminarConversacion(criterioConver, function (conversacion) {
+                                if (conversacion == null) {
+                                    let respuesta = swig.renderFile('views/error.html',
+                                        {
+                                            mensaje: "Se ha producido un error intentando eliminar una conversacion "
+                                        });
+                                    res.send(respuesta);
+                                } else {
+                                    gestorBD.eliminarMensaje(criterioMensa, function (mensaje) {
+                                        if (mensaje == null) {
+                                            let respuesta = swig.renderFile('views/error.html',
+                                                {
+                                                    mensaje: "Se ha producido un error intentando eliminar una conversacion "
+                                                });
+                                            res.send(respuesta);
+                                        } else {
+                                            res.redirect("/users/list");
+                                        }
+                                    });
+                                }
+                            });
                         }
-
-
                     });
                 }
             });

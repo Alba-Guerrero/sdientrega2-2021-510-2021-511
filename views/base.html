@@ -45,10 +45,8 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if usuario !=null %}
-                <li>Usuario: {{usuario}}</li>
-                <br />
-                <li>Saldo: {{saldo}}</li>
-                <br />
+                <li><a style="color:white">Usuario: {{usuario}}</a></li>
+                <li><a style="color:white">Saldo: {{saldo}}</a></li>
                 <li><a href="/desconectarse"><span class="glyphicon glyphicon-user"></span> Desconectarse</a></li>
                 {% else %}
 
