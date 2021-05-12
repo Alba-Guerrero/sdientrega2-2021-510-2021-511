@@ -63,14 +63,12 @@ module.exports = function (app, swig, gestorBD) {
                             req.session.usuario = usuarioCheck.email;
                             res.redirect("/ofertas/list?mensaje=Nuevo usuario registrado");
                             app.get("logger").trace('rusuarios: Se ha  registrado con éxito'+ usuario.email);
-
                         }
                     });
                 }
                 else{
                     app.get("logger").trace('rusuarios: Se ha intentado registrar a un usuario, sus contraseñas no coinciden');
                     res.redirect("/registrarse?mensaje=Las contraseñas no coinciden");
-
                 }}
         });
     });
@@ -109,7 +107,6 @@ module.exports = function (app, swig, gestorBD) {
                 } else {
                     req.session.usuario = usuarios[0].email;
                     app.get("logger").trace('rusuarios: Se ha identificado como usuario '+usuarios[0].email);
-
                     res.redirect("/ofertas/list");
                 }
             }
@@ -144,10 +141,8 @@ module.exports = function (app, swig, gestorBD) {
             var emails= req.body.emails;
             app.get("logger").trace('rusuarios: Se ha logueado como admin para borrar los siguientes usuarios '+emails);
            if(typeof emails =='string'){
-
                var criterio={ email: emails}
            }else{
-
                criterio={ email: {$in: emails}}
            }
 
@@ -167,9 +162,7 @@ module.exports = function (app, swig, gestorBD) {
                 criterioMensa ={ $or : [{emisor: {$in : emails}, receptor : {$in: emails}} ]};
             }
 
-
             gestorBD.eliminarUsuarios(criterio, function (usuarios) {
-
                 if (usuarios == null) {
                     app.get("logger").trace('rusuarios: Se ha producido un error eliminando los siguientes usuarios'+emails);
                     let respuesta = swig.renderFile('views/error.html',
@@ -184,7 +177,6 @@ module.exports = function (app, swig, gestorBD) {
                             app.get("logger").trace('rusuarios: Se ha producido un error eliminando las ofertas de los siguientes usuarios'+emails);
                             let respuesta = swig.renderFile('views/error.html',
                                 {
-
                                     mensaje: "Se ha producido un error intentando eliminar una oferta "
                                 });
                             res.send(respuesta);
@@ -211,8 +203,6 @@ module.exports = function (app, swig, gestorBD) {
                                 }
                             });
                         }
-
-
                     });
                 }
             });
@@ -220,7 +210,6 @@ module.exports = function (app, swig, gestorBD) {
             app.get("logger").trace('rusuarios: Se ha intentando borrar usuarios desde un perfil que no es administrador '+req.session.usuario);
             let respuesta = swig.renderFile('views/error.html',
                 {
-
                     mensaje: "Esta intentado acceder a una funcionalidad exclusiva de administrador "
                 });
             res.send(respuesta);

@@ -264,7 +264,6 @@ module.exports = function (app, gestorBD) {
                         });
                     }
                 });
-
     });
 
 
@@ -318,6 +317,88 @@ module.exports = function (app, gestorBD) {
                         });
                     }
                 });
+            }
+        });
+    });
+
+    app.put("/api/oferta/mensaje/leido/:id", function (req, res) {
+        let criterio = {_id : gestorBD.mongo.ObjectID(req.params.id)};
+        let mensaje = {leido : true};
+
+        gestorBD.obtenerMensaje(criterio, function (mensajeRespuesta1) {
+            if (mensajeRespuesta1 == null) {
+                res.status(500);
+                res.json({
+                    error: "Se ha producido un error al obtener oferta"
+                })
+            } else if(res.usuario == mensajeRespuesta1[0].emisor || res.usuario == mensajeRespuesta1[0].receptor) {
+                gestorBD.modificarMensaje(criterio, mensaje, function (respuesta) {
+                    if (respuesta == null) {
+                        res.status(500);
+                        res.json({
+                            error: "Se ha producido un error al obtener oferta"
+                        })
+                    } else {
+                        res.status(200);
+                        res.send({
+                            respuesta : "Se ha modificado correctamente"
+                        });
+                    }
+                });
+            } else {
+                res.status(500);
+                res.json({
+                    error: "No es el emisor o el receptor del mensaje"
+                })
+            }
+        });
+    });
+
+    app.delete("/api/oferta/conversacion/eliminar/:id", function (req, res) {
+        let criterio = {_id : gestorBD.mongo.ObjectID(req.params.id)};
+
+        gestorBD.obtenerConversacion(criterio, function (conversacionResp) {
+            if (conversacionResp == null) {
+                res.status(500);
+                res.json({
+                    error: "Se ha producido un error al obtener oferta"
+                })
+            } else if(res.usuario == conversacionResp[0].vendedor || res.usuario == conversacionResp[0].interesado) {
+                criterio = {
+                    oferta: conversacionResp[0].oferta,
+                    $or: [
+                        {emisor: conversacionResp[0].interesado, receptor: conversacionResp[0].vendedor},
+                        {emisor: conversacionResp[0].vendedor, receptor: conversacionResp[0].interesado}
+                    ]
+                }
+                gestorBD.eliminarMensaje(criterio, function (respuesta) {
+                    if (respuesta == null) {
+                        res.status(500);
+                        res.json({
+                            error: "Se ha producido un error al obtener oferta"
+                        })
+                    } else {
+                        criterio = {_id : gestorBD.mongo.ObjectID(req.params.id)};
+                        gestorBD.eliminarConversacion(criterio, function (respuesta) {
+                            if (respuesta == null) {
+                                res.status(500);
+                                res.json({
+                                    error: "Se ha producido un error al obtener oferta"
+                                })
+                            } else {
+                                res.status(200);
+                                res.send({
+                                    respuesta : "Se ha eliminado la conversacion y mensaje correctamente"
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                res.status(500);
+                res.json({
+                    error: "No es el interesado o el vendedor de la conversacion"
+                })
             }
         });
     });
