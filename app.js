@@ -89,6 +89,9 @@ routerUsuarioToken.use(function(req, res, next) {
 //RouterUsuario
 var routerUsuarioSession = express.Router();
 routerUsuarioSession.use(function(req, res, next) {
+    if(req.session.usuario === "admin@email.com") {
+        res.redirect("/usuario/list");
+    }
     if ( req.session.usuario ) {
         next();
     } else {
@@ -103,7 +106,7 @@ routerAdminSession.use(function(req, res, next) {
         next();
     else {
         if( req.session.usuario )
-            res.redirect("/ofertas/list");
+            res.redirect("/oferta/list");
         else
             res.redirect("/identificarse");
     }
@@ -119,7 +122,7 @@ routerComprarOferta.use(function(req, res, next) {
             if(req.session.usuario &&  req.session.usuario != ofertas[0].vendedor) {
                 next();
             } else {
-                res.redirect("/ofertas/list");
+                res.redirect("/oferta/list");
             }
         })
 });
@@ -134,14 +137,14 @@ routerEliminarOferta.use(function(req, res, next) {
             if(req.session.usuario &&  req.session.usuario == ofertas[0].vendedor) {
                 next();
             } else {
-                res.redirect("/ofertas/list");
+                res.redirect("/oferta/list");
             }
         })
 });
 
 //RoutersAdmin
-//app.use("/users/list",routerAdminSession);
-//app.use("/users/delete",routerAdminSession);
+app.use("/usuario/list",routerAdminSession);
+app.use("/usuario/eliminar",routerAdminSession);
 
 //RouterComprarOferta
 app.use("/oferta/comprar/*",routerComprarOferta);
@@ -153,13 +156,12 @@ app.use("/oferta/eliminar/*",routerEliminarOferta);
 app.use("/compras",routerUsuarioSession);
 app.use("/oferta/add",routerUsuarioSession);
 app.use("/oferta",routerUsuarioSession);
-app.use("/ofertas/list",routerUsuarioSession);
-app.use("/ofertas/compradas",routerUsuarioSession);
-app.use("/misofertas/list",routerUsuarioSession);
+app.use("/oferta/list",routerUsuarioSession);
+app.use("/oferta/compradas",routerUsuarioSession);
+app.use("/misoferta/list",routerUsuarioSession);
 
 //RouterToken
 app.use('/api/oferta', routerUsuarioToken);
-app.use('/api/conversaciones', routerUsuarioToken);
 app.use('/api/conversacion', routerUsuarioToken);
 
 //Requires

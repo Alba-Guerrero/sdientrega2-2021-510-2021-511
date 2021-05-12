@@ -18,8 +18,8 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
 
-                <li id="lista" class="active"><a  onclick=verOfertas()>Ofertas</a></li>
-                <li id="lista" class="active"><a onclick=verConversaciones()>Conversaciones</a</li>
+                <li id="lista1" class="active"><a  onclick=verOfertas()>Ofertas</a></li>
+                <li id="lista" class="active"><a onclick=verConversaciones()>Conversaciones</a></li>
 
             </ul>
 
@@ -57,7 +57,7 @@
     var conversaciones;
     function cargarConversacion(){
         $.ajax({
-            url: URLbase + "/conversaciones",
+            url: URLbase + "/conversacion",
             type: "GET",
             data: { },
             dataType: 'json',

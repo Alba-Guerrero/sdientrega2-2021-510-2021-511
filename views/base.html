@@ -25,29 +25,28 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                {% if usuario == null %}
 
-                <li id="lista" class="active"><a href="/tienda">Listado de ofertas</a></li>
-                {% endif %}
                 {% if usuario!=null && usuario == "admin@email.com" %}
 
-                <li id="listaUsuarios"><a href="/user/list">Listado de usuarios</a></li>
+                <li id="listaUsuarios"><a href="/usuario/list">Listado de usuarios</a></li>
                 {% endif %}
                 {% if usuario!=null && usuario != "admin@email.com" %}
-                <li id="listaoferta" class="active"><a href="/tienda">Listado de ofertas</a></li>
+                <li id="listaoferta" class="active"><a href="/oferta/list">Listado de ofertas</a></li>
                 <li id="coferta" class="active"><a href="/oferta/add">Crear Oferta</a></li>
-                <li id="Boferta" class="active"><a href="/ofertas/list">Buscar Oferta</a></li>
-                <li id="VerPropias" class="active"><a href="/misofertas/list">Ver ofertas propias</a></li>
-                <li id="Comferta" class="active"><a href="/ofertas/compradas">Lista de ofertas compradas</a></li>
+                <li id="VerPropias" class="active"><a href="/misoferta/list">Ver ofertas propias</a></li>
+                <li id="Comferta" class="active"><a href="/oferta/compradas">Lista de ofertas compradas</a></li>
                 {% endif %}
 
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                {% if usuario !=null %}
+                {% if usuario !=null && usuario != "admin@email.com" %}
                 <li><a style="color:white">Usuario: {{usuario}}</a></li>
                 <li><a style="color:white">Saldo: {{saldo}}</a></li>
+                {% endif %}
+                {% if usuario !=null %}
                 <li><a href="/desconectarse"><span class="glyphicon glyphicon-user"></span> Desconectarse</a></li>
+
 
                 {% else %}
 

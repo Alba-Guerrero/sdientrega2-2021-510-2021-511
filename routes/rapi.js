@@ -229,7 +229,7 @@ module.exports = function (app, gestorBD) {
     /**
      * Metodo post para obtener mensajes de una conversaciones
      */
-    app.get("/api/conversaciones", function (req, res) {
+    app.get("/api/conversacion", function (req, res) {
 
        var usuario = {email: res.usuario};
 

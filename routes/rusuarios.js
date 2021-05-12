@@ -61,7 +61,7 @@ module.exports = function (app, swig, gestorBD) {
                             res.redirect("/registrarse?mensaje=Error al registrar usuario");
                         } else {
                             req.session.usuario = usuarioCheck.email;
-                            res.redirect("/ofertas/list?mensaje=Nuevo usuario registrado");
+                            res.redirect("/oferta/list?mensaje=Nuevo usuario registrado");
                             app.get("logger").trace('rusuarios: Se ha  registrado con éxito'+ usuario.email);
 
                         }
@@ -105,12 +105,12 @@ module.exports = function (app, swig, gestorBD) {
                 if (usuarios[0].email === "admin@email.com") {
                     req.session.usuario = usuarios[0].email;
                     app.get("logger").trace('rusuarios: Se ha identificado como admin');
-                    res.redirect("/users/list");
+                    res.redirect("/usuario/list");
                 } else {
                     req.session.usuario = usuarios[0].email;
                     app.get("logger").trace('rusuarios: Se ha identificado como usuario '+usuarios[0].email);
 
-                    res.redirect("/ofertas/list");
+                    res.redirect("/oferta/list");
                 }
             }
         });
@@ -124,11 +124,11 @@ module.exports = function (app, swig, gestorBD) {
             "&tipoMensaje=alert-danger ");
     })
 
-    app.get("/users/list", function (req, res) {
+    app.get("/usuario/list", function (req, res) {
         var criterio = {email: {$ne: "admin@email.com"}};
         gestorBD.obtenerUsuarios(criterio, function (usuarios) {
             var respuesta = swig.renderFile('views/busuarios.html', {
-
+                usuario:req.session.usuario,
                 usuarios: usuarios
 
             });
@@ -137,7 +137,7 @@ module.exports = function (app, swig, gestorBD) {
         });
     });
 
-    app.post("/user/delete", function (req, res) {
+    app.post("/usuario/eliminar", function (req, res) {
 
         if(req.session.usuario=="admin@email.com") {
 
@@ -205,7 +205,7 @@ module.exports = function (app, swig, gestorBD) {
                                                 });
                                             res.send(respuesta);
                                         } else {
-                                            res.redirect("/users/list");
+                                            res.redirect("/usuario/list");
                                         }
                                     });
                                 }
