@@ -24,6 +24,14 @@ module.exports = function (app, swig, gestorBD) {
             app.get("logger").trace('rusuarios: Se ha intentado loguear con un apellido  inválido, menos de dos caracteres');
             return;
         }
+        if (req.body.password.length < 5) {
+            res.redirect("/registrarse?mensaje=La contraseña contiene menos de 5 caracteres");
+            return;
+        }
+        if (req.body.repeatpassword.length < 5) {
+            res.redirect("/registrarse?mensaje=La contraseña repetida contiene menos de 5 caracteres");
+            return;
+        }
 
         let usuario = {
             email: req.body.email,
@@ -35,13 +43,12 @@ module.exports = function (app, swig, gestorBD) {
 
         }
         let usuarioCheck = {
-            email: req.body.email,
-            password: seguro
+            email: req.body.email
         }
 
         gestorBD.obtenerUsuarios(usuarioCheck, function (usuarios) {
             if (usuarios.length != 0) {
-                res.redirect("/identificarse" +
+                res.redirect("/registrarse" +
                     "?mensaje=Este usuario ya existe en el sistema" +
                     "&tipoMensaje=alert-danger ");
                 app.get("logger").trace('rusuarios: Se ha intentado registrar con el usuario existente en el sistema'+ usuarios[0].email);
@@ -53,8 +60,10 @@ module.exports = function (app, swig, gestorBD) {
                             app.get("logger").trace('rusuarios: Se ha  producido un error al generar el id del usuario' + usuario.email);
                             res.redirect("/registrarse?mensaje=Error al registrar usuario");
                         } else {
+                            req.session.usuario = usuarioCheck.email;
+                            res.redirect("/ofertas/list?mensaje=Nuevo usuario registrado");
                             app.get("logger").trace('rusuarios: Se ha  registrado con éxito'+ usuario.email);
-                            res.redirect("/identificarse?mensaje=Nuevo usuario registrado");
+
                         }
                     });
                 }
@@ -142,16 +151,21 @@ module.exports = function (app, swig, gestorBD) {
                criterio={ email: {$in: emails}}
            }
 
-            if(typeof emails =='string'){
-
+            if(typeof emails =='string') {
                 var criteriooferta={ vendedor:  emails};
-            }else{
-
-                 criteriooferta={ vendedor: { $in: emails}};
+            } else {
+                criteriooferta={ vendedor: { $in: emails}};
             }
-
-
-
+            if(typeof emails =='string') {
+                var criterioConver ={ $or : [{ vendedor:  emails,interesado : emails} ]};
+            } else {
+                 criterioConver ={ $or : [{vendedor: {$in : emails}, interesado : {$in: emails}} ]};
+            }
+            if(typeof emails =='string') {
+                var criterioMensa ={ $or : [{ emisor:  emails,receptor : emails} ]};
+            } else {
+                criterioMensa ={ $or : [{emisor: {$in : emails}, receptor : {$in: emails}} ]};
+            }
 
 
             gestorBD.eliminarUsuarios(criterio, function (usuarios) {
@@ -175,7 +189,27 @@ module.exports = function (app, swig, gestorBD) {
                                 });
                             res.send(respuesta);
                         } else {
-                            res.redirect("/users/list");
+                            gestorBD.eliminarConversacion(criterioConver, function (conversacion) {
+                                if (conversacion == null) {
+                                    let respuesta = swig.renderFile('views/error.html',
+                                        {
+                                            mensaje: "Se ha producido un error intentando eliminar una conversacion "
+                                        });
+                                    res.send(respuesta);
+                                } else {
+                                    gestorBD.eliminarMensaje(criterioMensa, function (mensaje) {
+                                        if (mensaje == null) {
+                                            let respuesta = swig.renderFile('views/error.html',
+                                                {
+                                                    mensaje: "Se ha producido un error intentando eliminar una conversacion "
+                                                });
+                                            res.send(respuesta);
+                                        } else {
+                                            res.redirect("/users/list");
+                                        }
+                                    });
+                                }
+                            });
                         }
 
 

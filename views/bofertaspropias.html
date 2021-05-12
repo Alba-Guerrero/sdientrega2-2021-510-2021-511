@@ -7,7 +7,7 @@
 		<table class="table table-hover">
 			<thead>
 			<tr>
-				<th> </th>
+				<th>Titulo</th>
 				<th>Descripción</th>
 				<th>Detalle</th>
 				<th>Precio</th>
@@ -17,11 +17,12 @@
 			<tbody>
 			{% for oferta in ofertas %}
 			<tr>
+				<td>{{  oferta.title  }}</td>
 				<td>{{  oferta.descripcion  }}</td>
 				<td>{{ oferta.detalle }}</td>
-				<td>{{ oferta.precio }}</td><div >
+				<td>{{ oferta.precio }}</td>
 				{% if ! oferta.comprada %}
-				<td><a href="/oferta/eliminar/{{ oferta._id.toString() }}">Eliminar</a> <br></td>
+				<td><a id="delete" href="/oferta/eliminar/{{ oferta._id.toString() }}">Eliminar</a> <br></td>
 				{% else %}
 				<td> VENDIDA </td>
 			</tr>

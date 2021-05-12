@@ -37,6 +37,7 @@
                 <li id="listaoferta" class="active"><a href="/tienda">Listado de ofertas</a></li>
                 <li id="coferta" class="active"><a href="/oferta/add">Crear Oferta</a></li>
                 <li id="Boferta" class="active"><a href="/ofertas/list">Buscar Oferta</a></li>
+                <li id="VerPropias" class="active"><a href="/misofertas/list">Ver ofertas propias</a></li>
                 <li id="Comferta" class="active"><a href="/ofertas/compradas">Lista de ofertas compradas</a></li>
                 {% endif %}
 
@@ -44,8 +45,8 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if usuario !=null %}
-                <li>{{usuario}}</li>
-                <li>{{usuario.saldo}}</li>
+                <li><a style="color:white">Usuario: {{usuario}}</a></li>
+                <li><a style="color:white">Saldo: {{saldo}}</a></li>
                 <li><a href="/desconectarse"><span class="glyphicon glyphicon-user"></span> Desconectarse</a></li>
 
                 {% else %}
