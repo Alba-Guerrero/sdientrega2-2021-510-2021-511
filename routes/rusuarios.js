@@ -11,14 +11,17 @@ module.exports = function (app, swig, gestorBD) {
 
         if (!req.body.email.includes("@")) {
             res.redirect("/registrarse?mensaje=El email no tiene un formato válido");
+            app.get("logger").trace('rusuarios: Se ha intentado loguear con un email con formato inválido ');
             return;
         }
         if (req.body.name.length < 2) {
             res.redirect("/registrarse?mensaje=El nombre contiene menos de 2 caracteres");
+            app.get("logger").trace('rusuarios: Se ha intentado loguear con un nombre  inválido, menos de dos caracteres');
             return;
         }
         if (req.body.lastname.length < 2) {
             res.redirect("/registrarse?mensaje=El apellido contiene menos de 2 caracteres");
+            app.get("logger").trace('rusuarios: Se ha intentado loguear con un apellido  inválido, menos de dos caracteres');
             return;
         }
 
@@ -41,18 +44,22 @@ module.exports = function (app, swig, gestorBD) {
                 res.redirect("/identificarse" +
                     "?mensaje=Este usuario ya existe en el sistema" +
                     "&tipoMensaje=alert-danger ");
+                app.get("logger").trace('rusuarios: Se ha intentado registrar con el usuario existente en el sistema'+ usuarios[0].email);
             } else {
                 if (req.body.password === req.body.repeatpassword){
 
                     gestorBD.insertarUsuario(usuario, function (id) {
                         if (id == null) {
+                            app.get("logger").trace('rusuarios: Se ha  producido un error al generar el id del usuario' + usuario.email);
                             res.redirect("/registrarse?mensaje=Error al registrar usuario");
                         } else {
+                            app.get("logger").trace('rusuarios: Se ha  registrado con éxito'+ usuario.email);
                             res.redirect("/identificarse?mensaje=Nuevo usuario registrado");
                         }
                     });
                 }
                 else{
+                    app.get("logger").trace('rusuarios: Se ha intentado registrar a un usuario, sus contraseñas no coinciden');
                     res.redirect("/registrarse?mensaje=Las contraseñas no coinciden");
 
                 }}
@@ -69,6 +76,7 @@ module.exports = function (app, swig, gestorBD) {
             .update(req.body.password).digest('hex');
 
         if (!req.body.email.includes("@")) {
+            app.get("logger").trace('rusuarios: No se ha podido identificar con éxito debido a un formato de email incorrecto');
             res.redirect("/identificarse?mensaje=El email no tiene un formato válido");
             return;
         }
@@ -80,15 +88,18 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.obtenerUsuarios(criterio, function (usuarios) {
             if (usuarios == null || usuarios.length == 0) {
                 req.session.usuario = null;
+                app.get("logger").trace('rusuarios: No se ha podido identificar con éxito debido a un error de auteticacion del usuario');
                 res.redirect("/identificarse" +
                     "?mensaje=Email o password incorrecto" +
                     "&tipoMensaje=alert-danger ");
             } else {
                 if (usuarios[0].email === "admin@email.com") {
                     req.session.usuario = usuarios[0].email;
+                    app.get("logger").trace('rusuarios: Se ha identificado como admin');
                     res.redirect("/users/list");
                 } else {
                     req.session.usuario = usuarios[0].email;
+                    app.get("logger").trace('rusuarios: Se ha identificado como usuario '+usuarios[0].email);
 
                     res.redirect("/ofertas/list");
                 }
@@ -97,6 +108,7 @@ module.exports = function (app, swig, gestorBD) {
     });
 
     app.get('/desconectarse', function (req, res) {
+        app.get("logger").trace('rusuarios: Se ha cerrado corrrectamente la sesión de '+ req.session.usuario);
         req.session.usuario = null;
         res.redirect("/identificarse" +
             "?mensaje=Ha cerrado sesión con éxito"+
@@ -119,7 +131,9 @@ module.exports = function (app, swig, gestorBD) {
     app.post("/user/delete", function (req, res) {
 
         if(req.session.usuario=="admin@email.com") {
+
             var emails= req.body.emails;
+            app.get("logger").trace('rusuarios: Se ha logueado como admin para borrar los siguientes usuarios '+emails);
            if(typeof emails =='string'){
 
                var criterio={ email: emails}
@@ -143,6 +157,7 @@ module.exports = function (app, swig, gestorBD) {
             gestorBD.eliminarUsuarios(criterio, function (usuarios) {
 
                 if (usuarios == null) {
+                    app.get("logger").trace('rusuarios: Se ha producido un error eliminando los siguientes usuarios'+emails);
                     let respuesta = swig.renderFile('views/error.html',
                         {
 
@@ -152,6 +167,7 @@ module.exports = function (app, swig, gestorBD) {
                 } else {
                     gestorBD.eliminarOferta(criteriooferta, function (oferta) {
                         if (oferta == null) {
+                            app.get("logger").trace('rusuarios: Se ha producido un error eliminando las ofertas de los siguientes usuarios'+emails);
                             let respuesta = swig.renderFile('views/error.html',
                                 {
 
@@ -167,6 +183,7 @@ module.exports = function (app, swig, gestorBD) {
                 }
             });
         }else {
+            app.get("logger").trace('rusuarios: Se ha intentando borrar usuarios desde un perfil que no es administrador '+req.session.usuario);
             let respuesta = swig.renderFile('views/error.html',
                 {
 

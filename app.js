@@ -4,6 +4,15 @@ let app= express();
 let expressSession = require('express-session');
 let jwt = require('jsonwebtoken');
 app.set('jwt',jwt);
+const log4js = require("log4js");
+log4js.configure({
+    appenders: { MyWallapop: { type: "file", filename: "MyWallapop.log" } },
+    categories: { default: { appenders: ["MyWallapop"], level: "trace" } }
+});
+
+const logger = log4js.getLogger("MyWallapop");
+app.set('logger', logger);
+
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -102,8 +111,8 @@ routerAdminSession.use(function(req, res, next) {
 
 
 //RoutersAdmin
-app.use("/users/list",routerAdminSession);
-app.use("/users/delete",routerAdminSession);
+//app.use("/users/list",routerAdminSession);
+//app.use("/users/delete",routerAdminSession);
 
 //RoutersUsuario
 
@@ -116,6 +125,8 @@ app.use("/misofertas/list",routerUsuarioSession);
 
 //RouterToken
 app.use('/api/oferta', routerUsuarioToken);
+app.use('/api/conversaciones', routerUsuarioToken);
+app.use('/api/conversacion', routerUsuarioToken);
 
 //Requires
 require("./routes/rapi.js")(app, gestorBD);
