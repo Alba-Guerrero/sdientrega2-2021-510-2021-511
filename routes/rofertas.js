@@ -55,7 +55,8 @@ module.exports = function (app, swig, gestorBD) {
                     }
                 }
                 let respuesta = swig.renderFile('views/btienda.html',
-                    {   usuario:req.session.usuario,
+                    {
+                        usuario:req.session.usuario,
                         ofertas: ofertas,
                         paginas: paginas,
                         actual: pg
@@ -128,7 +129,6 @@ module.exports = function (app, swig, gestorBD) {
                                 if (ofertacallback == null) {
                                     let respuesta = swig.renderFile('views/error.html',
                                         {
-
                                             mensaje: "Se ha producido un error durante la compra"
                                         });
                                     res.send(respuesta);
@@ -138,12 +138,11 @@ module.exports = function (app, swig, gestorBD) {
                                         if (usercallback == null) {
                                             let respuesta = swig.renderFile('views/error.html',
                                                 {
-
                                                     mensaje: "Se ha producido un error durante la compra"
                                                 });
                                             res.send(respuesta);
                                         } else {
-                                            res.redirect("/compras?mensaje=Se ha realizado la compra con éxito" +
+                                            res.redirect("/ofertas/compradas?mensaje=Se ha realizado la compra con éxito" +
                                                 "&tipoMensaje=alert-danger ");
                                         }
                                     });
@@ -184,7 +183,7 @@ module.exports = function (app, swig, gestorBD) {
         var ofer = {
             title: req.body.title,
             detalle: req.body.detalle,
-            desripcion: req.body.descripcion,
+            descripcion: req.body.descripcion,
             fecha: new Date(),
             precio: req.body.precio,
             vendedor: req.session.usuario,
@@ -281,14 +280,27 @@ module.exports = function (app, swig, gestorBD) {
                         paginas.push(i);
                     }
                 }
-                let respuesta = swig.renderFile('views/btienda.html',
-                    {
-                        usuario: req.session.usuario,
-                        ofertas: ofertas,
-                        paginas: paginas,
-                        actual: pg
-                    });
-                res.send(respuesta);
+
+                criterio = { email : req.session.usuario };
+                gestorBD.obtenerUsuarios(criterio, function (usuarioRespuesta) {
+                    if (usuarioRespuesta.length == 0) {
+                        res.status(500);
+                        res.json({
+                            error: "Se ha producido un error al obtener usuario"
+                        })
+
+                    } else {
+                        let respuesta = swig.renderFile('views/btienda.html',
+                            {
+                                usuario: req.session.usuario,
+                                saldo : usuarioRespuesta[0].saldo,
+                                ofertas: ofertas,
+                                paginas: paginas,
+                                actual: pg
+                            });
+                        res.send(respuesta);
+                    }
+                });
             }
         });
     });
@@ -328,14 +340,24 @@ module.exports = function (app, swig, gestorBD) {
                     });
                 res.send(respuesta);
             } else {
+                criterio = { email : req.session.usuario };
 
-                let respuesta = swig.renderFile('views/bofertascompradas.html',
-                    {
-                        usuario:req.session.usuario,
-                        ofertas: ofertas,
-
-                    });
-                res.send(respuesta);
+                gestorBD.obtenerUsuarios(criterio, function (usuarioRespuesta) {
+                    if (usuarioRespuesta.length == 0) {
+                        res.status(500);
+                        res.json({
+                            error: "Se ha producido un error al obtener usuario"
+                        })
+                    } else {
+                        let respuesta = swig.renderFile('views/bofertascompradas.html',
+                            {
+                                usuario: req.session.usuario,
+                                saldo : usuarioRespuesta[0].saldo,
+                                ofertas: ofertas
+                            });
+                        res.send(respuesta);
+                    }
+                });
             }
         });
     });

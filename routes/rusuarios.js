@@ -21,6 +21,14 @@ module.exports = function (app, swig, gestorBD) {
             res.redirect("/registrarse?mensaje=El apellido contiene menos de 2 caracteres");
             return;
         }
+        if (req.body.password.length < 5) {
+            res.redirect("/registrarse?mensaje=La contraseña contiene menos de 5 caracteres");
+            return;
+        }
+        if (req.body.repeatpassword.length < 5) {
+            res.redirect("/registrarse?mensaje=La contraseña repetida contiene menos de 5 caracteres");
+            return;
+        }
 
         let usuario = {
             email: req.body.email,
@@ -32,13 +40,12 @@ module.exports = function (app, swig, gestorBD) {
 
         }
         let usuarioCheck = {
-            email: req.body.email,
-            password: seguro
+            email: req.body.email
         }
 
         gestorBD.obtenerUsuarios(usuarioCheck, function (usuarios) {
             if (usuarios.length != 0) {
-                res.redirect("/identificarse" +
+                res.redirect("/registrarse" +
                     "?mensaje=Este usuario ya existe en el sistema" +
                     "&tipoMensaje=alert-danger ");
             } else {
@@ -48,13 +55,13 @@ module.exports = function (app, swig, gestorBD) {
                         if (id == null) {
                             res.redirect("/registrarse?mensaje=Error al registrar usuario");
                         } else {
-                            res.redirect("/identificarse?mensaje=Nuevo usuario registrado");
+                            req.session.usuario = usuarioCheck.email;
+                            res.redirect("/ofertas/list?mensaje=Nuevo usuario registrado");
                         }
                     });
                 }
                 else{
                     res.redirect("/registrarse?mensaje=Las contraseñas no coinciden");
-
                 }}
         });
     });
@@ -89,7 +96,6 @@ module.exports = function (app, swig, gestorBD) {
                     res.redirect("/users/list");
                 } else {
                     req.session.usuario = usuarios[0].email;
-
                     res.redirect("/ofertas/list");
                 }
             }
@@ -120,28 +126,23 @@ module.exports = function (app, swig, gestorBD) {
 
         if(req.session.usuario=="admin@email.com") {
             var emails= req.body.emails;
-           if(typeof emails =='string'){
 
-               var criterio={ email: emails}
-           }else{
-
-               criterio={ email: {$in: emails}}
-           }
-
-            if(typeof emails =='string'){
-
-                var criteriooferta={ vendedor:  emails};
-            }else{
-
-                 criteriooferta={ vendedor: { $in: emails}};
+            if(typeof emails =='string') {
+                var criterio={ email: emails}
+            } else {
+                criterio={ email: {$in: emails}}
             }
 
+            if(typeof emails =='string') {
+                var criteriooferta={ vendedor:  emails};
+            } else {
+                criteriooferta={ vendedor: { $in: emails}};
+            }
 
-
-
+            let criterioConver = { $or : [{vendedor: {$in : emails}, interesado : {$in: emails}} ]};
+            let criterioMensa = { $or : [{emisor: {$in : emails}, receptor: {$in: emails}} ]};
 
             gestorBD.eliminarUsuarios(criterio, function (usuarios) {
-
                 if (usuarios == null) {
                     let respuesta = swig.renderFile('views/error.html',
                         {
@@ -154,22 +155,38 @@ module.exports = function (app, swig, gestorBD) {
                         if (oferta == null) {
                             let respuesta = swig.renderFile('views/error.html',
                                 {
-
                                     mensaje: "Se ha producido un error intentando eliminar una oferta "
                                 });
                             res.send(respuesta);
                         } else {
-                            res.redirect("/users/list");
+                            gestorBD.eliminarConversacion(criterioConver, function (conversacion) {
+                                if (conversacion == null) {
+                                    let respuesta = swig.renderFile('views/error.html',
+                                        {
+                                            mensaje: "Se ha producido un error intentando eliminar una conversacion "
+                                        });
+                                    res.send(respuesta);
+                                } else {
+                                    gestorBD.eliminarMensaje(criterioMensa, function (mensaje) {
+                                        if (mensaje == null) {
+                                            let respuesta = swig.renderFile('views/error.html',
+                                                {
+                                                    mensaje: "Se ha producido un error intentando eliminar una conversacion "
+                                                });
+                                            res.send(respuesta);
+                                        } else {
+                                            res.redirect("/users/list");
+                                        }
+                                    });
+                                }
+                            });
                         }
-
-
                     });
                 }
             });
         }else {
             let respuesta = swig.renderFile('views/error.html',
                 {
-
                     mensaje: "Esta intentado acceder a una funcionalidad exclusiva de administrador "
                 });
             res.send(respuesta);

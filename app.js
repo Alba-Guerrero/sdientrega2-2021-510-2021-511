@@ -45,7 +45,7 @@ app.set('crypto',crypto);
 
 //Redireccion
 app.get('/', function (req, res) {
-    res.redirect('/identificarse');
+    res.redirect('/tienda');
 })
 
 //RouterUsuarioToken
@@ -100,13 +100,47 @@ routerAdminSession.use(function(req, res, next) {
     }
 });
 
+//RouterComprarOferta
+let routerComprarOferta = express.Router();
+routerComprarOferta.use(function(req, res, next) {
+    let path = require('path');
+    let idOferta = path.basename(req.originalUrl);
+
+    gestorBD.obtenerOfertas({"_id": mongo.ObjectID(idOferta) }, function (ofertas) {
+            if(req.session.usuario &&  req.session.usuario != ofertas[0].vendedor) {
+                next();
+            } else {
+                res.redirect("/ofertas/list");
+            }
+        })
+});
+
+//RouterEliminarOferta
+let routerEliminarOferta = express.Router();
+routerEliminarOferta.use(function(req, res, next) {
+    let path = require('path');
+    let idOferta = path.basename(req.originalUrl);
+
+    gestorBD.obtenerOfertas({"_id": mongo.ObjectID(idOferta) }, function (ofertas) {
+            if(req.session.usuario &&  req.session.usuario == ofertas[0].vendedor) {
+                next();
+            } else {
+                res.redirect("/ofertas/list");
+            }
+        })
+});
 
 //RoutersAdmin
 app.use("/users/list",routerAdminSession);
 app.use("/users/delete",routerAdminSession);
 
-//RoutersUsuario
+//RouterComprarOferta
+app.use("/oferta/comprar/*",routerComprarOferta);
 
+//RouterEliminarOferta
+app.use("/oferta/eliminar/*",routerEliminarOferta);
+
+//RoutersUsuario
 app.use("/compras",routerUsuarioSession);
 app.use("/oferta/add",routerUsuarioSession);
 app.use("/oferta",routerUsuarioSession);
