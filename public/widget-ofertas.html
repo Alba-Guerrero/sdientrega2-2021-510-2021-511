@@ -18,7 +18,7 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
 
-                <li id="lista" class="active"><a  onclick=verOfertas()>Ofertas</a></li>
+                <li id="listaOferta" class="active"><a  onclick=verOfertas()>Ofertas</a></li>
                 <li id="lista" class="active"><a onclick=verConversaciones()>Conversaciones</a></li>
 
             </ul>
@@ -79,7 +79,7 @@
                 "<td>"+ofertasShow[i].precio+"</td>" +
                 "<td>"+ofertasShow[i].vendedor+"</td>" +
                 "<td>"+
-                "<a onclick=enviarMensaje('"+ofertasShow[i]._id+"','"+ofertasShow[i].comprador+"')>Enviar mensaje</a><br>"+
+                "<a onclick=enviarMensaje('"+ofertasShow[i]._id+"','"+Cookies.get('usuarioEnSesion')+"')>Enviar mensaje</a><br>"+
                 "</tr>" );
 
         }
