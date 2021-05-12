@@ -5,7 +5,7 @@ module.exports = function (app, swig, gestorBD) {
      */
     app.get('/oferta/add', function (req, res) {
 
-        criterio = { email : req.session.usuario };
+        criterio = {email: req.session.usuario};
         gestorBD.obtenerUsuarios(criterio, function (usuarioRespuesta) {
             if (usuarioRespuesta.length == 0) {
                 let respuesta = swig.renderFile('views/error.html',
@@ -15,10 +15,10 @@ module.exports = function (app, swig, gestorBD) {
                     });
                 res.send(respuesta);
 
-            }else {
+            } else {
                 let respuesta = swig.renderFile('views/boferta.html', {
-                    usuario:req.session.usuario,
-                    saldo : usuarioRespuesta[0].saldo
+                    usuario: req.session.usuario,
+                    saldo: usuarioRespuesta[0].saldo
 
                 });
                 res.send(respuesta);
@@ -28,7 +28,9 @@ module.exports = function (app, swig, gestorBD) {
     });
 
 
-
+    /**
+     * Metodo get que devulve la lista de compras
+     */
 
     app.get("/compras", function (req, res) {
         let criterio = {
@@ -36,17 +38,16 @@ module.exports = function (app, swig, gestorBD) {
             comprada: true
         };
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
-            if(ofertas==null){
-                app.get("logger").error('rofertas:'+ req.session.usuario+'  Se ha producido un error al obtener las ofertas propias');
+            if (ofertas == null) {
+                app.get("logger").error('rofertas:' + req.session.usuario + '  Se ha producido un error al obtener las ofertas propias');
                 let respuesta = swig.renderFile('views/error.html',
                     {
 
                         mensaje: "Se ha producido un error al obtener una oferta"
                     });
                 res.send(respuesta);
-            }
-            else {
-                app.get("logger").trace('rofertas:'+ req.session.usuario+'  Se ha accedido a las ofertas propias');
+            } else {
+                app.get("logger").trace('rofertas:' + req.session.usuario + '  Se ha accedido a las ofertas propias');
 
                 let respuesta = swig.renderFile('views/bcompras.html',
                     {
@@ -58,9 +59,6 @@ module.exports = function (app, swig, gestorBD) {
     });
 
 
-
-
-
     /**
      * Metodo get para comprar una oferta
      */
@@ -70,7 +68,7 @@ module.exports = function (app, swig, gestorBD) {
 
         gestorBD.obtenerUsuarios(usuarioId, function (user) {
             if (user == null || user.length == 0) {
-                app.get("logger").error('rofertas:'+ req.session.usuario+'  Se ha producido un error al obtener el usuario');
+                app.get("logger").error('rofertas:' + req.session.usuario + '  Se ha producido un error al obtener el usuario');
                 let respuesta = swig.renderFile('views/error.html',
                     {
 
@@ -82,7 +80,7 @@ module.exports = function (app, swig, gestorBD) {
 
                 gestorBD.obtenerOfertas(ofertaId, function (oferta) {
                     if (oferta == null || oferta.length == 0) {
-                        app.get("logger").error('rofertas:'+ req.session.usuario+'  Se ha producido un error al obtner la oferta');
+                        app.get("logger").error('rofertas:' + req.session.usuario + '  Se ha producido un error al obtner la oferta');
                         let respuesta = swig.renderFile('views/error.html',
                             {
 
@@ -93,10 +91,10 @@ module.exports = function (app, swig, gestorBD) {
                         if (user[0].saldo - oferta[0].precio < 0) {
                             res.redirect("/oferta/list" + "?mensaje=No tienes suficientes dinero" +
                                 "&tipoMensaje=alert-danger ")
-                        }else if (user[0].email === oferta[0].vendedor) {
-                            app.get("logger").trace('rofertas:'+ req.session.usuario+'  Se ha intentado comprar la oferta '+ req.params.id+' donde es el vendedor');
-                                res.redirect("/oferta/list" + "?mensaje=No puedes comprar una oferta propia" +
-                                    "&tipoMensaje=alert-danger ")
+                        } else if (user[0].email === oferta[0].vendedor) {
+                            app.get("logger").trace('rofertas:' + req.session.usuario + '  Se ha intentado comprar la oferta ' + req.params.id + ' donde es el vendedor');
+                            res.redirect("/oferta/list" + "?mensaje=No puedes comprar una oferta propia" +
+                                "&tipoMensaje=alert-danger ")
 
                         } else {
 
@@ -106,7 +104,7 @@ module.exports = function (app, swig, gestorBD) {
 
                             gestorBD.modificarOferta(ofertaId, oferta[0], function (ofertacallback) {
                                 if (ofertacallback == null) {
-                                    app.get("logger").trace('rofertas:'+ req.session.usuario+'  Se ha producido un error durante la compra de la oferta '+ req.params.id);
+                                    app.get("logger").trace('rofertas:' + req.session.usuario + '  Se ha producido un error durante la compra de la oferta ' + req.params.id);
                                     let respuesta = swig.renderFile('views/error.html',
                                         {
 
@@ -117,7 +115,7 @@ module.exports = function (app, swig, gestorBD) {
                                 } else {
                                     gestorBD.modificarUsuario(usuarioId, user[0], function (usercallback) {
                                         if (usercallback == null) {
-                                            app.get("logger").trace('rofertas:'+ req.session.usuario+'  Se ha producido un error durante la compra de la oferta '+ req.params.id);
+                                            app.get("logger").trace('rofertas:' + req.session.usuario + '  Se ha producido un error durante la compra de la oferta ' + req.params.id);
                                             let respuesta = swig.renderFile('views/error.html',
                                                 {
 
@@ -125,7 +123,7 @@ module.exports = function (app, swig, gestorBD) {
                                                 });
                                             res.send(respuesta);
                                         } else {
-                                            app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+'  ha comprado con éxito la oferta '+ req.params.id);
+                                            app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + '  ha comprado con éxito la oferta ' + req.params.id);
                                             res.redirect("/oferta/compradas?mensaje=Se ha realizado la compra con éxito" +
                                                 "&tipoMensaje=alert-danger ");
                                         }
@@ -153,17 +151,17 @@ module.exports = function (app, swig, gestorBD) {
             return;
         }
         if (req.body.title < 2) {
-            app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+'  Se ha intentado añadir una oferta con un titulo inferior a dos caracteres');
+            app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + '  Se ha intentado añadir una oferta con un titulo inferior a dos caracteres');
             res.redirect("/oferta/add?mensaje=El título debe tener más de 2 caracteres");
             return;
         }
         if (req.body.desripcion < 2) {
-            app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+'  Se ha intentado añadir una oferta con una descricpion inferior a dos caracteres');
+            app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + '  Se ha intentado añadir una oferta con una descricpion inferior a dos caracteres');
             res.redirect("/oferta/add?mensaje=La descricpión debe tener más de 2 caracteres");
             return;
         }
         if (req.body.precio < 0) {
-            app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+'  Se ha itentado añadir una oferta con un precio negativo');
+            app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + '  Se ha itentado añadir una oferta con un precio negativo');
             res.redirect("/oferta/add?mensaje=El precio contiene un valor negativo");
             return;
         }
@@ -181,11 +179,11 @@ module.exports = function (app, swig, gestorBD) {
 
         gestorBD.insertarOferta(ofer, function (id) {
             if (id != null) {
-                app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+' Ha añadido una oferta con éxito con el siguiente id'+ id);
+                app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + ' Ha añadido una oferta con éxito con el siguiente id' + id);
                 res.redirect("/oferta/list?mensaje=Se ha insertado la oferta con éxito");
 
             } else {
-                app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+' Ha intentado añadir una oferta pero se ha producido un error');
+                app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + ' Ha intentado añadir una oferta pero se ha producido un error');
                 let respuesta = swig.renderFile('views/error.html',
                     {
                         mensaje: "No se puede agregar la oferta"
@@ -203,15 +201,14 @@ module.exports = function (app, swig, gestorBD) {
 
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
-                app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+' Ha intentado ver sus lista de ofertas pero se ha producido un error');
+                app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + ' Ha intentado ver sus lista de ofertas pero se ha producido un error');
                 let respuesta = swig.renderFile('views/error.html',
                     {
 
                         mensaje: "Error al listar las ofertas"
                     });
                 res.send(respuesta);
-            }
-            else {
+            } else {
                 criterio = {email: req.session.usuario};
                 gestorBD.obtenerUsuarios(criterio, function (usuarioRespuesta) {
                     if (usuarioRespuesta.length == 0) {
@@ -228,7 +225,7 @@ module.exports = function (app, swig, gestorBD) {
                         let respuesta = swig.renderFile('views/bofertaspropias.html',
                             {
                                 usuario: req.session.usuario,
-                                saldo:usuarioRespuesta[0].saldo,
+                                saldo: usuarioRespuesta[0].saldo,
                                 ofertas: ofertas
                             });
                         res.send(respuesta);
@@ -254,7 +251,7 @@ module.exports = function (app, swig, gestorBD) {
 
         gestorBD.obtenerOfertasPg(criterio, pg, function (ofertas, total) {
             if (ofertas == null) {
-                app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+' Ha intentado acceder a la lista de ofertas pero se ha producido un error');
+                app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + ' Ha intentado acceder a la lista de ofertas pero se ha producido un error');
                 let respuesta = swig.renderFile('views/error.html',
                     {
                         mensaje: "Error al listar "
@@ -271,8 +268,8 @@ module.exports = function (app, swig, gestorBD) {
                         paginas.push(i);
                     }
                 }
-                app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+' Ha accedido a la lista de ofertas');
-                criterio = { email : req.session.usuario };
+                app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + ' Ha accedido a la lista de ofertas');
+                criterio = {email: req.session.usuario};
                 gestorBD.obtenerUsuarios(criterio, function (usuarioRespuesta) {
                     if (usuarioRespuesta.length == 0) {
                         let respuesta = swig.renderFile('views/error.html',
@@ -286,7 +283,7 @@ module.exports = function (app, swig, gestorBD) {
                         let respuesta = swig.renderFile('views/btienda.html',
                             {
                                 usuario: req.session.usuario,
-                                saldo : usuarioRespuesta[0].saldo,
+                                saldo: usuarioRespuesta[0].saldo,
                                 ofertas: ofertas,
                                 paginas: paginas,
                                 actual: pg
@@ -305,7 +302,7 @@ module.exports = function (app, swig, gestorBD) {
         let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
         gestorBD.eliminarOferta(criterio, function (ofertas) {
             if (ofertas == null) {
-                app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+' Ha intentado eliminar la oferta '+req.params.id +' sin éxito');
+                app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + ' Ha intentado eliminar la oferta ' + req.params.id + ' sin éxito');
                 let respuesta = swig.renderFile('views/error.html',
                     {
 
@@ -314,7 +311,7 @@ module.exports = function (app, swig, gestorBD) {
                 res.send(respuesta);
 
             } else {
-                app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+' ha eliminado la oferta '+req.params.id +' correctamente');
+                app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + ' ha eliminado la oferta ' + req.params.id + ' correctamente');
                 res.redirect("/misoferta/list");
             }
         });
@@ -337,7 +334,7 @@ module.exports = function (app, swig, gestorBD) {
                 res.send(respuesta);
             } else {
                 app.get("logger").trace('rofertas:Se ha accedido a la lista de ofertas compradas');
-                criterio = { email : req.session.usuario };
+                criterio = {email: req.session.usuario};
 
                 gestorBD.obtenerUsuarios(criterio, function (usuarioRespuesta) {
                     if (usuarioRespuesta.length == 0) {
@@ -349,7 +346,7 @@ module.exports = function (app, swig, gestorBD) {
                         let respuesta = swig.renderFile('views/bofertascompradas.html',
                             {
                                 usuario: req.session.usuario,
-                                saldo : usuarioRespuesta[0].saldo,
+                                saldo: usuarioRespuesta[0].saldo,
                                 ofertas: ofertas
                             });
                         res.send(respuesta);

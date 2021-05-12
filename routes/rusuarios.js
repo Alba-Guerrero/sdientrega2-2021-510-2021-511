@@ -1,10 +1,15 @@
 module.exports = function (app, swig, gestorBD) {
+    /**
+     * Metodo get para regitrarse
+     */
 
     app.get("/registrarse", function (req, res) {
         let respuesta = swig.renderFile('views/bregistro.html', {});
         res.send(respuesta);
     });
-
+    /**
+     * Metodo post para regitrarse
+     */
     app.post('/registrarse', function (req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
@@ -51,9 +56,9 @@ module.exports = function (app, swig, gestorBD) {
                 res.redirect("/registrarse" +
                     "?mensaje=Este usuario ya existe en el sistema" +
                     "&tipoMensaje=alert-danger ");
-                app.get("logger").trace('rusuarios: Se ha intentado registrar con el usuario existente en el sistema'+ usuarios[0].email);
+                app.get("logger").trace('rusuarios: Se ha intentado registrar con el usuario existente en el sistema' + usuarios[0].email);
             } else {
-                if (req.body.password === req.body.repeatpassword){
+                if (req.body.password === req.body.repeatpassword) {
 
                     gestorBD.insertarUsuario(usuario, function (id) {
                         if (id == null) {
@@ -62,24 +67,28 @@ module.exports = function (app, swig, gestorBD) {
                         } else {
                             req.session.usuario = usuarioCheck.email;
                             res.redirect("/oferta/list?mensaje=Nuevo usuario registrado");
-                            app.get("logger").trace('rusuarios: Se ha  registrado con éxito'+ usuario.email);
+                            app.get("logger").trace('rusuarios: Se ha  registrado con éxito' + usuario.email);
 
                         }
                     });
-                }
-                else{
+                } else {
                     app.get("logger").trace('rusuarios: Se ha intentado registrar a un usuario, sus contraseñas no coinciden');
                     res.redirect("/registrarse?mensaje=Las contraseñas no coinciden");
 
-                }}
+                }
+            }
         });
     });
-
+    /**
+     * Metodo get para identificarse
+     */
     app.get("/identificarse", function (req, res) {
         let respuesta = swig.renderFile('views/bidentificacion.html', {});
         res.send(respuesta);
     });
-
+    /**
+     * Metodo post para identificarse
+     */
     app.post("/identificarse", function (req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
@@ -108,18 +117,21 @@ module.exports = function (app, swig, gestorBD) {
                     res.redirect("/usuario/list");
                 } else {
                     req.session.usuario = usuarios[0].email;
-                    app.get("logger").trace('rusuarios: Se ha identificado como usuario '+usuarios[0].email);
+                    app.get("logger").trace('rusuarios: Se ha identificado como usuario ' + usuarios[0].email);
                     res.redirect("/oferta/list");
                 }
             }
         });
     });
+    /**
+     * Metodo para salir de sesion si el usuario esta logueado
+     */
 
     app.get('/desconectarse', function (req, res) {
-        app.get("logger").trace('rusuarios: Se ha cerrado corrrectamente la sesión de '+ req.session.usuario);
+        app.get("logger").trace('rusuarios: Se ha cerrado corrrectamente la sesión de ' + req.session.usuario);
         req.session.usuario = null;
         res.redirect("/identificarse" +
-            "?mensaje=Ha cerrado sesión con éxito"+
+            "?mensaje=Ha cerrado sesión con éxito" +
             "&tipoMensaje=alert-danger ");
     })
 
@@ -127,7 +139,7 @@ module.exports = function (app, swig, gestorBD) {
         var criterio = {email: {$ne: "admin@email.com"}};
         gestorBD.obtenerUsuarios(criterio, function (usuarios) {
             var respuesta = swig.renderFile('views/busuarios.html', {
-                usuario:req.session.usuario,
+                usuario: req.session.usuario,
                 usuarios: usuarios
 
             });
@@ -135,42 +147,44 @@ module.exports = function (app, swig, gestorBD) {
             res.send(respuesta);
         });
     });
-
+    /**
+     * Metodo post para eliminar un usuario
+     */
     app.post("/usuario/eliminar", function (req, res) {
 
-        if(req.session.usuario=="admin@email.com") {
+        if (req.session.usuario == "admin@email.com") {
 
-            var emails= req.body.emails;
-            app.get("logger").trace('rusuarios: Se ha logueado como admin para borrar los siguientes usuarios '+emails);
-           if(typeof emails =='string'){
+            var emails = req.body.emails;
+            app.get("logger").trace('rusuarios: Se ha logueado como admin para borrar los siguientes usuarios ' + emails);
+            if (typeof emails == 'string') {
 
-               var criterio={ email: emails}
-           }else{
-
-               criterio={ email: {$in: emails}}
-           }
-
-            if(typeof emails =='string') {
-                var criteriooferta={ vendedor:  emails};
+                var criterio = {email: emails}
             } else {
-                criteriooferta={ vendedor: { $in: emails}};
+
+                criterio = {email: {$in: emails}}
             }
-            if(typeof emails =='string') {
-                var criterioConver ={ $or : [{ vendedor:  emails,interesado : emails} ]};
+
+            if (typeof emails == 'string') {
+                var criteriooferta = {vendedor: emails};
             } else {
-                 criterioConver ={ $or : [{vendedor: {$in : emails}, interesado : {$in: emails}} ]};
+                criteriooferta = {vendedor: {$in: emails}};
             }
-            if(typeof emails =='string') {
-                var criterioMensa ={ $or : [{ emisor:  emails,receptor : emails} ]};
+            if (typeof emails == 'string') {
+                var criterioConver = {$or: [{vendedor: emails, interesado: emails}]};
             } else {
-                criterioMensa ={ $or : [{emisor: {$in : emails}, receptor : {$in: emails}} ]};
+                criterioConver = {$or: [{vendedor: {$in: emails}, interesado: {$in: emails}}]};
+            }
+            if (typeof emails == 'string') {
+                var criterioMensa = {$or: [{emisor: emails, receptor: emails}]};
+            } else {
+                criterioMensa = {$or: [{emisor: {$in: emails}, receptor: {$in: emails}}]};
             }
 
 
             gestorBD.eliminarUsuarios(criterio, function (usuarios) {
 
                 if (usuarios == null) {
-                    app.get("logger").trace('rusuarios: Se ha producido un error eliminando los siguientes usuarios'+emails);
+                    app.get("logger").trace('rusuarios: Se ha producido un error eliminando los siguientes usuarios' + emails);
                     let respuesta = swig.renderFile('views/error.html',
                         {
 
@@ -180,7 +194,7 @@ module.exports = function (app, swig, gestorBD) {
                 } else {
                     gestorBD.eliminarOferta(criteriooferta, function (oferta) {
                         if (oferta == null) {
-                            app.get("logger").trace('rusuarios: Se ha producido un error eliminando las ofertas de los siguientes usuarios'+emails);
+                            app.get("logger").trace('rusuarios: Se ha producido un error eliminando las ofertas de los siguientes usuarios' + emails);
                             let respuesta = swig.renderFile('views/error.html',
                                 {
 
@@ -215,8 +229,8 @@ module.exports = function (app, swig, gestorBD) {
                     });
                 }
             });
-        }else {
-            app.get("logger").trace('rusuarios: Se ha intentando borrar usuarios desde un perfil que no es administrador '+req.session.usuario);
+        } else {
+            app.get("logger").trace('rusuarios: Se ha intentando borrar usuarios desde un perfil que no es administrador ' + req.session.usuario);
             let respuesta = swig.renderFile('views/error.html',
                 {
 
