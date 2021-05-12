@@ -324,7 +324,7 @@ module.exports = function (app, swig, gestorBD) {
      * Metodo get para ver el listado de ofertas compradas
      */
 
-    app.get("/oferta/compradas", function (req, res) {
+    app.get("/oferta/compraoferta/compradas", function (req, res) {
         let criterio = {$and: [{"comprada": true}, {comprador: {$eq: req.session.usuario}}]};
         gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
