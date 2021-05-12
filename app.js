@@ -54,7 +54,7 @@ app.set('crypto',crypto);
 
 //Redireccion
 app.get('/', function (req, res) {
-    res.redirect('/tienda');
+    res.redirect('/identificarse');
 })
 
 //RouterUsuarioToken

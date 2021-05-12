@@ -126,7 +126,7 @@ module.exports = function (app, swig, gestorBD) {
                                             res.send(respuesta);
                                         } else {
                                             app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+'  ha comprado con éxito la oferta '+ req.params.id);
-                                            res.redirect("/compras?mensaje=Se ha realizado la compra con éxito" +
+                                            res.redirect("/oferta/compradas?mensaje=Se ha realizado la compra con éxito" +
                                                 "&tipoMensaje=alert-danger ");
                                         }
                                     });
@@ -200,14 +200,8 @@ module.exports = function (app, swig, gestorBD) {
      */
     app.get("/misoferta/list", function (req, res) {
         let criterio = {vendedor: {$eq: req.session.usuario}};
-        if (req.query.busqueda != null) {
-            criterio = {"title": {$regex: ".*" + req.query.busqueda + ".*", '$options': 'i'}};
-        }
-        let pg = parseInt(req.query.pg); // Es String !!!
-        if (req.query.pg == null) { // Puede no venir el param
-            pg = 1;
-        }
-        gestorBD.obtenerOfertasPg(criterio, pg, function (ofertas, total) {
+
+        gestorBD.obtenerOfertas(criterio, function (ofertas) {
             if (ofertas == null) {
                 app.get("logger").trace('rofertas:El usuario '+ req.session.usuario+' Ha intentado ver sus lista de ofertas pero se ha producido un error');
                 let respuesta = swig.renderFile('views/error.html',
@@ -229,34 +223,19 @@ module.exports = function (app, swig, gestorBD) {
                         res.send(respuesta);
 
                     } else {
-
-
-                        let ultimaPg = total / 5;
-                        if (total % 5 > 0) { // Sobran decimales
-                            ultimaPg = ultimaPg + 1;
-                        }
-                        let paginas = []; // paginas mostrar
-                        for (let i = pg - 2; i <= pg + 2; i++) {
-                            if (i > 0 && i <= ultimaPg) {
-                                paginas.push(i);
-                            }
-                        }
                         app.get("logger").trace('rofertas:El usuario ' + req.session.usuario + ' Ha accedido a sus ofertas propias');
 
                         let respuesta = swig.renderFile('views/bofertaspropias.html',
                             {
                                 usuario: req.session.usuario,
                                 saldo:usuarioRespuesta[0].saldo,
-                                ofertas: ofertas,
-                                paginas: paginas,
-                                actual: pg
+                                ofertas: ofertas
                             });
                         res.send(respuesta);
                     }
                 });
             }
         });
-
     });
 
     /**
@@ -265,7 +244,7 @@ module.exports = function (app, swig, gestorBD) {
     app.get("/oferta/list", function (req, res) {
         let criterio = {"vendedor": {$ne: req.session.usuario}};
         if (req.query.busqueda != null) {
-            criterio = {"nombre": {$regex: ".*" + req.query.busqueda + ".*"}};
+            criterio = {"title": {$regex: ".*" + req.query.busqueda + ".*"}};
         }
 
         let pg = parseInt(req.query.pg); // Es String !!!

@@ -42,7 +42,7 @@
             <ul class="nav navbar-nav navbar-right">
                 {% if usuario !=null && usuario != "admin@email.com" %}
                 <li><a style="color:white">Usuario: {{usuario}}</a></li>
-                <li><a style="color:white">Saldo: {{saldo}}</a></li>
+                <li><a id="saldo" style="color:white">Saldo: {{saldo}}</a></li>
                 {% endif %}
                 {% if usuario !=null %}
                 <li><a href="/desconectarse"><span class="glyphicon glyphicon-user"></span> Desconectarse</a></li>
