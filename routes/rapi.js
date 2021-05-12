@@ -329,4 +329,53 @@ module.exports = function (app, gestorBD) {
             }
         });
     });
+
+    app.delete("/api/oferta/conversacion/eliminar/:id", function (req, res) {
+        let criterio = {_id : gestorBD.mongo.ObjectID(req.params.id)};
+
+        gestorBD.obtenerConversacion(criterio, function (conversacionResp) {
+            if (conversacionResp == null) {
+                res.status(500);
+                res.json({
+                    error: "Se ha producido un error al obtener oferta"
+                })
+            } else if(res.usuario == conversacionResp[0].vendedor || res.usuario == conversacionResp[0].interesado) {
+                criterio = {
+                    oferta: conversacionResp[0].oferta,
+                    $or: [
+                        {emisor: conversacionResp[0].interesado, receptor: conversacionResp[0].vendedor},
+                        {emisor: conversacionResp[0].vendedor, receptor: conversacionResp[0].interesado}
+                    ]
+                }
+                gestorBD.eliminarMensaje(criterio, function (respuesta) {
+                    if (respuesta == null) {
+                        res.status(500);
+                        res.json({
+                            error: "Se ha producido un error al obtener oferta"
+                        })
+                    } else {
+                        criterio = {_id : gestorBD.mongo.ObjectID(req.params.id)};
+                        gestorBD.eliminarConversacion(criterio, function (respuesta) {
+                            if (respuesta == null) {
+                                res.status(500);
+                                res.json({
+                                    error: "Se ha producido un error al obtener oferta"
+                                })
+                            } else {
+                                res.status(200);
+                                res.send({
+                                    respuesta : "Se ha eliminado la conversacion y mensaje correctamente"
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                res.status(500);
+                res.json({
+                    error: "No es el interesado o el vendedor de la conversacion"
+                })
+            }
+        });
+    });
 }
