@@ -85,7 +85,7 @@ module.exports = function (app, gestorBD) {
 
                         let conversacion = {
                             interesado: req.params.interesado,
-                            vendedor:ofertaRespuesta[0].vendedor,
+                            vendedor: ofertaRespuesta[0].vendedor,
                             oferta: oferta._id
 
                         }
@@ -101,7 +101,7 @@ module.exports = function (app, gestorBD) {
                         }
 
                         gestorBD.obtenerConversacion(conversacion, function (converRespuesta1) {
-                            if (converRespuesta1.length != 0 && converRespuesta1!=null) {
+                            if (converRespuesta1.length != 0 && converRespuesta1 != null) {
                                 app.get("logger").trace('rapi:Se ha obtenido con éxito una ocnversacion ya existente');
 
                                 if (res.usuario == converRespuesta1[0].vendedor)
@@ -132,7 +132,7 @@ module.exports = function (app, gestorBD) {
                                     interesado: req.params.interesado,
                                     vendedor: ofertaRespuesta[0].vendedor,
                                     oferta: ofertaRespuesta[0]._id,
-                                    title:ofertaRespuesta[0].title
+                                    title: ofertaRespuesta[0].title
                                 }
 
                                 gestorBD.insertarConversacion(conversacion, function (converRespuesta2) {
@@ -173,7 +173,9 @@ module.exports = function (app, gestorBD) {
             }
         });
     });
-
+    /**
+     * Metodo que obtiene las conversaciones por el id de la conversacion
+     */
     app.get("/api/conversacion/:id", function (req, res) {
 
         var usuario = {email: res.usuario};
@@ -227,11 +229,11 @@ module.exports = function (app, gestorBD) {
 
 
     /**
-     * Metodo post para obtener mensajes de una conversaciones
+     * Metodo get para obtener la lista de  conversaciones
      */
     app.get("/api/conversacion", function (req, res) {
 
-       var usuario = {email: res.usuario};
+        var usuario = {email: res.usuario};
 
 
         gestorBD.obtenerUsuarios(usuario, function (usuarioEmisor) {
@@ -243,32 +245,33 @@ module.exports = function (app, gestorBD) {
                 })
 
             } else {
-                        let criterio = {
-                            $or: [
-                                { vendedor : res.usuario},
-                                { interesado : res.usuario}
-                          ]}
+                let criterio = {
+                    $or: [
+                        {vendedor: res.usuario},
+                        {interesado: res.usuario}
+                    ]
+                }
 
-                        gestorBD.obtenerConversacion(criterio, function (mensajeRespuesta) {
-                            if (mensajeRespuesta == null) {
-                                app.get("logger").error('rapi:Se ha producido un error al obtener conversación');
-                                res.status(500);
-                                res.json({
-                                    error: "Se ha producido un error al obtener la conversacion"
-                                })
-                            } else {
-                                app.get("logger").trace('rapi:Se ha obtneido con éxito la lista de conversaciones');
-                                res.status(200);
-                                res.send(JSON.stringify(mensajeRespuesta));
-                            }
-                        });
+                gestorBD.obtenerConversacion(criterio, function (mensajeRespuesta) {
+                    if (mensajeRespuesta == null) {
+                        app.get("logger").error('rapi:Se ha producido un error al obtener conversación');
+                        res.status(500);
+                        res.json({
+                            error: "Se ha producido un error al obtener la conversacion"
+                        })
+                    } else {
+                        app.get("logger").trace('rapi:Se ha obtneido con éxito la lista de conversaciones');
+                        res.status(200);
+                        res.send(JSON.stringify(mensajeRespuesta));
                     }
                 });
+            }
+        });
     });
 
 
     /**
-     * Metodo post para obtener mensajes de una conversaciones
+     * Metodo get para obtener mensajes d euna oferta a traves del id de la oferta
      */
     app.get("/api/oferta/mensaje/:id", function (req, res) {
 
@@ -294,12 +297,14 @@ module.exports = function (app, gestorBD) {
                             error: "Se ha producido un error al obtener oferta"
                         })
 
-                    } else  {
-                        let criterio = { oferta :ofertas[0]._id ,
+                    } else {
+                        let criterio = {
+                            oferta: ofertas[0]._id,
                             $or: [
-                                { emisor : ofertas[0].vendedor},
-                                { receptor : ofertas[0].vendedor}
-                            ]}
+                                {emisor: ofertas[0].vendedor},
+                                {receptor: ofertas[0].vendedor}
+                            ]
+                        }
 
                         gestorBD.obtenerMensaje(criterio, function (mensajeRespuesta) {
                             if (mensajeRespuesta == null) {
@@ -320,10 +325,13 @@ module.exports = function (app, gestorBD) {
             }
         });
     });
+    /**
+     * Metodo put que modifica un mensaje a leido a traves del id del mensaje
+     */
 
     app.put("/api/oferta/mensaje/leido/:id", function (req, res) {
-        let criterio = {_id : gestorBD.mongo.ObjectID(req.params.id)};
-        let mensaje = {leido : true};
+        let criterio = {_id: gestorBD.mongo.ObjectID(req.params.id)};
+        let mensaje = {leido: true};
 
         gestorBD.obtenerMensaje(criterio, function (mensajeRespuesta1) {
             if (mensajeRespuesta1 == null) {
@@ -331,7 +339,7 @@ module.exports = function (app, gestorBD) {
                 res.json({
                     error: "Se ha producido un error al obtener oferta"
                 })
-            } else if(res.usuario == mensajeRespuesta1[0].emisor || res.usuario == mensajeRespuesta1[0].receptor) {
+            } else if (res.usuario == mensajeRespuesta1[0].emisor || res.usuario == mensajeRespuesta1[0].receptor) {
                 gestorBD.modificarMensaje(criterio, mensaje, function (respuesta) {
                     if (respuesta == null) {
                         res.status(500);
@@ -341,7 +349,7 @@ module.exports = function (app, gestorBD) {
                     } else {
                         res.status(200);
                         res.send({
-                            respuesta : "Se ha modificado correctamente"
+                            respuesta: "Se ha modificado correctamente"
                         });
                     }
                 });
@@ -353,9 +361,12 @@ module.exports = function (app, gestorBD) {
             }
         });
     });
+    /**
+     * Metodo delete para eliminar una conversacion por el id de la conversacion
+     */
 
     app.delete("/api/oferta/conversacion/eliminar/:id", function (req, res) {
-        let criterio = {_id : gestorBD.mongo.ObjectID(req.params.id)};
+        let criterio = {_id: gestorBD.mongo.ObjectID(req.params.id)};
 
         gestorBD.obtenerConversacion(criterio, function (conversacionResp) {
             if (conversacionResp == null) {
@@ -363,7 +374,7 @@ module.exports = function (app, gestorBD) {
                 res.json({
                     error: "Se ha producido un error al obtener oferta"
                 })
-            } else if(res.usuario == conversacionResp[0].vendedor || res.usuario == conversacionResp[0].interesado) {
+            } else if (res.usuario == conversacionResp[0].vendedor || res.usuario == conversacionResp[0].interesado) {
                 criterio = {
                     oferta: conversacionResp[0].oferta,
                     $or: [
@@ -378,7 +389,7 @@ module.exports = function (app, gestorBD) {
                             error: "Se ha producido un error al obtener oferta"
                         })
                     } else {
-                        criterio = {_id : gestorBD.mongo.ObjectID(req.params.id)};
+                        criterio = {_id: gestorBD.mongo.ObjectID(req.params.id)};
                         gestorBD.eliminarConversacion(criterio, function (respuesta) {
                             if (respuesta == null) {
                                 res.status(500);
@@ -388,7 +399,7 @@ module.exports = function (app, gestorBD) {
                             } else {
                                 res.status(200);
                                 res.send({
-                                    respuesta : "Se ha eliminado la conversacion y mensaje correctamente"
+                                    respuesta: "Se ha eliminado la conversacion y mensaje correctamente"
                                 });
                             }
                         });
